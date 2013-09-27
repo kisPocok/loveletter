@@ -1,13 +1,8 @@
-var utils  = require('./utils').utils;
-var game   = require('./game').game;
-var cards  = require('./cards').cards;
-var player = require('./player').player;
-var events = require('./events').events;
+var config = require('./config').appConfig;
 
-var Server = (function()
+var Server = (function(Config)
 {
-	var instance;
-	var self = {};
+	var instance, self = {};
 
 	self.router = {};
 	self.router.home = function(request, response)
@@ -20,7 +15,7 @@ var Server = (function()
 			console.log('Új játékos:', userId);
 		}
 		response.cookie('userId', userId, {maxAge: 900000, httpOnly: true});
-		response.sendfile(__dirname + '/../index.html');
+		response.sendfile('index.html', {'root': Config.root});
 	};
 
 	function init()
@@ -39,9 +34,8 @@ var Server = (function()
 			}
 			return instance;
 		}
-
 	};
-}());
+}(config));
 
 // Node export
 exports.server = Server.getInstance();
