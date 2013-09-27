@@ -1,14 +1,14 @@
 {
-  "name": "LoveLetter",
-  "description": "loveletter card game",
-  "version": "0.0.1",
-  "private": true,
-  "dependencies": {
-    "express": "3.x",
-	"socket.io": "0.9.x",
-	"jade": "*"
-  },
-  "scripts" : {
-	"start": "node node-server.js"
-  }
+	"name": "LoveLetter",
+	"description": "loveletter card game",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.x",
+		"socket.io": "0.9.x",
+		"jade": "*"
+	},
+	"scripts" : {
+		"start": "node app.js"
+	}
 }

@@ -1,2 +1,2 @@
 echo 'Jasmine tests:'
-jasmine-node test/
+jasmine-node tests/
