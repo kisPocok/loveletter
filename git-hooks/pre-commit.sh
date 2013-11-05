@@ -12,7 +12,10 @@ FAILS=$(grep -o '[0-9]\{1,10\}' <<< "$FAILURES")
 #git stash pop -q
 
 # working with test result
-[ $FAILS -ne 0 ] && echo "$TEST_RESULT"
-[ $FAILS -ne 0 ] && exit 1
+if [ "$FAILS" != 0 ]
+then
+	echo "$TEST_RESULT"
+	exit 1
+fi
 
 exit 0
