@@ -20,6 +20,10 @@ Love Letter Card Game README
     git clone ~
     cd loveletter
 
+### Install git commit hooks
+
+    ln -s ../../git-hooks/pre-commit.sh .git/hooks/pre-commit
+
 ### Install dependencies
 
     npm install
