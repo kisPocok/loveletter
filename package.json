@@ -4,12 +4,14 @@
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
+		"nodemon": "*",
 		"express": "3.x",
 		"socket.io": "0.9.x",
 		"jade": "*",
 		"jasmine-node": "*"
 	},
 	"scripts" : {
-		"start": "node app.js"
+		"start-dev": "nodemon app.js",
+		"start-prod": "node app.js"
 	}
 }
