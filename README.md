@@ -24,6 +24,10 @@ Love Letter Card Game README
 
     ln -s ../../git-hooks/pre-commit.sh .git/hooks/pre-commit
 
+### Create configuration file
+
+    cp src/config.js.dist src/config.js
+
 ### Install dependencies
 
     npm install
