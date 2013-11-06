@@ -24,11 +24,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' === app.get('env')) {
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
+var clients = {};
+var server = http.createServer(app).listen(app.get('port'));
+var io = require('socket.io').listen(server);
+io.set('log level', 1);
+require('./src/socketHandler').socketHandler(clients, io);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
+app.get('/', routes.index);
+app.get('/room/:name', routes.gamePlay);
+app.get('/api/:object/:method', routes.api);

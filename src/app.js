@@ -26,7 +26,9 @@ var App = (function(Game, Cards, Player, Events, Utils)
 				throw new Error('A játék már elkezdődött!');
 			}
 
-			for (var p in players) {
+			var p;
+
+			for (p in players) {
 				if (players[p] && players[p].name == player.name && players[p].id != player.id) {
 					throw new Error('Van már ilyen nevű játékos!');
 				}
@@ -34,7 +36,7 @@ var App = (function(Game, Cards, Player, Events, Utils)
 
 			if (!player.id) {
 				// generálunk neki ID-t, ha nem lenne
-				player.id = parseInt(players.length + 1)
+				player.id = parseInt(players.length + 1);
 			}
 
 			players.push(player);

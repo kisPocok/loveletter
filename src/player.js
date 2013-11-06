@@ -10,7 +10,7 @@ var Events = require('./events').events;
  */
 function Player(id, name) {
 	this.id          = id;
-	this.name        = name;
+	this.name        = name || null;
 	this.cardsInHand = [];
 	this.wins        = 0;
 	this.protection  = false;
@@ -93,7 +93,7 @@ Player.prototype.removeCard = function(card)
 /**
  * Resolve 'attack' action
  *
- * @param {GAME}   gameLogic    outsourced for debug mock
+ * @param {Game}   gameLogic    outsourced for debug mock
  * @param {Card}   withCard     using this card
  * @param {Player} targetPlayer targeted player
  * @param {object} params       optional parameters

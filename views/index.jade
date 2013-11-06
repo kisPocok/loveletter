@@ -3,3 +3,9 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  form(action='room', method='get')
+    input(type='text', name='room', placeholder='Name of the room')
+    input(type='submit', value='enter')
+
+  script(src='/socket.io/socket.io.js')
+  script(src='/js/frontend.js')
