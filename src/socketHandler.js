@@ -24,7 +24,10 @@ exports.socketHandler = function(io, app)
 		socket.on('room.join', function(params) {
 			var user = clients.getUser(params.user.id);
 			var room = roomManager.createRoom(params.room);
-			room.addUser(user);
+			var isEntered = room.addUser(user);
+			if (!isEntered) {
+				return;
+			}
 			user.updateWithRoom(room);
 			var emitParams = {
 				playerCount: room.getUserIdList().length

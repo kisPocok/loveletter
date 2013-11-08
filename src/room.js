@@ -9,10 +9,24 @@ exports.room = function(roomName)
 
 	/**
 	 * @param {User} user
+	 * @returns {boolean}
 	 */
 	this.addUser = function(user)
 	{
-		this.userIdList.push(user.id);
+		if (!this.isUserInRoom(user)) {
+			this.userIdList.push(user.id);
+			return true;
+		}
+		return false;
+	};
+
+	/**
+	 * @param {User} user
+	 * @returns {boolean}
+	 */
+	this.isUserInRoom = function(user)
+	{
+		return this.userIdList.indexOf(user.id) >= 0;
 	};
 
 	/**
