@@ -10,6 +10,7 @@ exports.index = function(request, response)
 	response.render('index', params);
 };
 
+/*
 exports.gamePlay = function(request, response)
 {
 	var params = {
@@ -27,3 +28,4 @@ exports.api = function(request, response)
 		method: method,
 	});
 };
+*/

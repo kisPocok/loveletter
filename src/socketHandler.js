@@ -1,21 +1,40 @@
-var config = require('./config').appConfig;
-var Player = require('./player').player;
+var User = require('./user').user;
 
 /**
- * @param {object} clients
  * @param {io} io
+ * @param {express} app
  */
-exports.socketHandler = function(clients, io)
+exports.socketHandler = function(io, app)
 {
-	var srvHelper = require('./srvHelper').srvHelper(clients, io);
-	var addUser = function(socketId)
-	{
-		clients[socketId] = new Player(socketId);
-	};
+	var SocketHelper = app.get('socketHelper');
+	var roomManager = app.get('roomManager');
+	var clients = app.get('clients');
 
 	io.sockets.on('connection', function(socket)
 	{
-		addUser(socket.id);
-		srvHelper.emitToSocket(socket.id, 'news', 5);
+		var user = new User(socket.id);
+		clients.addUser(user);
+		var socketHelper = new SocketHelper(socket, io);
+		var emitParams = {
+			userId: user.id
+		};
+		socketHelper.emitToCurrentUser('handshake', emitParams);
+		socketHelper.joinRoomCurrentUser('queue');
+
+		socket.on('room.join', function(params) {
+			var room = roomManager.createRoom(params.room);
+			room.addUser(params.user);
+			var emitParams = {
+				playerCount: room.getUserIdList().length
+			};
+			socketHelper.changeRoomCurrentUser('queue', params.room);
+			socketHelper.emitToRoom(params.room, 'room.playerJoined', emitParams);
+		});
+
+		socket.on('game.start', function(params) {
+			// TODO
+		});
 	});
+
+	return this;
 };

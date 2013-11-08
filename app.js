@@ -21,18 +21,20 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('clients', require('./src/clients').clients);
+app.set('roomManager', require('./src/roomManager').roomManager);
+app.set('socketHelper', require('./src/socketHelper').SocketHelper);
 
 // development only
 if ('development' === app.get('env')) {
 	app.use(express.errorHandler());
 }
 
-var clients = {};
 var server = http.createServer(app).listen(app.get('port'));
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
-require('./src/socketHandler').socketHandler(clients, io);
+GLOBAL.socketHandler = require('./src/socketHandler').socketHandler(io, app);
 
 app.get('/', routes.index);
-app.get('/room/:name', routes.gamePlay);
-app.get('/api/:object/:method', routes.api);
+//app.get('/room/:name', routes.gamePlay);
+//app.get('/api/:object/:method', routes.api);

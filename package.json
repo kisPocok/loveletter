@@ -11,7 +11,7 @@
 		"jasmine-node": "*"
 	},
 	"scripts" : {
-		"start-dev": "nodemon app.js",
-		"start-prod": "node app.js"
+		"start": "nodemon app.js",
+		"startprod": "node app.js"
 	}
 }
