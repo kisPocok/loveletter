@@ -1,4 +1,7 @@
-
+/**
+ * Client Lister
+ * @type {object}
+ */
 exports.clients = {
 	/**
 	 * The client list
@@ -19,6 +22,15 @@ exports.clients = {
 	removeUser: function(user)
 	{
 		console.log('Not implemented yet');
+	},
+
+	/**
+	 * @param {string} userId
+	 * @returns {User|null}
+	 */
+	getUser: function(userId)
+	{
+		return this.clientList[userId];
 	},
 
 	/**

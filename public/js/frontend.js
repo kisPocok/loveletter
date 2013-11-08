@@ -36,7 +36,7 @@ $(function() {
 		socket.emit('room.join', params);
 	});
 	$('#start').on('click', function() {
-		socket.emit('game.start', params);
+		socket.emit('game.start');
 	});
 });
 

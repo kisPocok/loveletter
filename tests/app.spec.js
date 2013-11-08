@@ -1,14 +1,14 @@
 // Game requirements
-var Utils  = require('../src/utils').utils,
-	Cards  = require('../src/cards').cards,
-	Game   = require('../src/game').game,
-	Events = require('../src/events').events,
-	Player = require('../src/player').player;
+var Utils  = require('../src/loveletter/utils').utils,
+	Cards  = require('../src/loveletter/cards').cards,
+	Game   = require('../src/loveletter/game').game,
+	Events = require('../src/loveletter/events').events,
+	Player = require('../src/loveletter/player').player;
 
 // Disable event firing while testing
 Events.disable();
 
-var App    = require('../src/app').app;
+var App    = require('../src/loveletter/app').app;
 //var Jasmine = require('jasmine-node');
 
 function using(values, func)

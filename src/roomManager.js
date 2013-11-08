@@ -1,5 +1,9 @@
 var Room = require('./room').room;
 
+/**
+ * Room Manager
+ * @type {object}
+ */
 exports.roomManager = {
 
 	/**

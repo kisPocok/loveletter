@@ -1,5 +1,6 @@
 /**
  * Room
+ * @type {function}
  */
 exports.room = function(roomName)
 {

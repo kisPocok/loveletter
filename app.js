@@ -24,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('clients', require('./src/clients').clients);
 app.set('roomManager', require('./src/roomManager').roomManager);
 app.set('socketHelper', require('./src/socketHelper').SocketHelper);
+app.set('user', require('./src/user').User);
 
 // development only
 if ('development' === app.get('env')) {
