@@ -58,7 +58,10 @@ function Player(id, name) {
 	{
 		var card = deck.draw();
 		this.cardsInHand.push(card);
-		eventHandler.emitToRoom(this.roomName, 'player.draw');
+
+		if (Events.enabled) {
+			eventHandler.emitToRoom(this.roomName, 'player.draw');
+		}
 	};
 
 	return this;

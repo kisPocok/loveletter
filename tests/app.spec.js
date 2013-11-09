@@ -8,8 +8,9 @@ var Utils  = require('../src/loveletter/utils').utils,
 // Disable event firing while testing
 Events.disable();
 
-var App    = require('../src/loveletter/app').app;
-//var Jasmine = require('jasmine-node');
+var App = require('../src/loveletter/app').App;
+var socketHandlerMock = jasmine.createSpyObj('socketHandler', ['emitToRoom']);
+App = new App(socketHandlerMock, 'test');
 
 function using(values, func)
 {
