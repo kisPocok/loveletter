@@ -10,7 +10,7 @@ var Events = require('./events').events;
  */
 function Player(id, name) {
 	this.id          = id;
-	this.name        = name || null;
+	this.name        = name;
 	this.cardsInHand = [];
 	this.wins        = 0;
 	this.protection  = false;

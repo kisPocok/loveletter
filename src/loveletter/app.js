@@ -14,6 +14,38 @@ var App = (function(Game, Cards, Player, Events, Utils)
 		var gameStarted, activePlayerId, players, deck;
 
 		/**
+		 * @returns {boolean}
+		 */
+		self.isGameAlreadyStarted = function()
+		{
+			return !!gameStarted;
+		};
+
+		/**
+		 * Create Game basics
+		 *
+		 * @param {Array} playerList
+		 * @returns {*}
+		 */
+		self.createGame = function(playerList)
+		{
+			if (self.isGameAlreadyStarted()) {
+				throw new Error('A játék már elkezdődött!');
+			}
+
+			var i;
+			var length = playerList.length;
+			if (playerList && length > 0) {
+				for (i = 0; i < length; i++) {
+					// TODO fix player's name
+					player = new Player(playerList[i], playerList[i]);
+					self.addPlayer(player);
+				}
+			}
+			return players;
+		};
+
+		/**
 		 * Add a new player to the game if it isn't started
 		 *
 		 * @param {Player} player
@@ -22,7 +54,7 @@ var App = (function(Game, Cards, Player, Events, Utils)
 		 */
 		self.addPlayer = function(player)
 		{
-			if (gameStarted) {
+			if (self.isGameAlreadyStarted()) {
 				throw new Error('A játék már elkezdődött!');
 			}
 
@@ -145,7 +177,7 @@ var App = (function(Game, Cards, Player, Events, Utils)
 		 */
 		self.startGame = function()
 		{
-			if (gameStarted) {
+			if (self.isGameAlreadyStarted()) {
 				// TODO FIXME for debug NOW
 				// return false;
 			}

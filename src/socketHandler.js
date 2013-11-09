@@ -22,7 +22,7 @@ exports.socketHandler = function(io, app)
 		socketHelper.joinRoomCurrentUser('queue');
 
 		socket.on('room.join', function(params) {
-			var user = clients.getUser(params.user.id);
+			var user = clients.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
 			var room = roomManager.createRoom(params.room);
 			var isEntered = room.addUser(user);
 			if (!isEntered) {
@@ -38,7 +38,18 @@ exports.socketHandler = function(io, app)
 
 		socket.on('game.start', function(params)
 		{
-			//socketHelper.emitToRoom()
+			var room = roomManager.getRoom(user.room);
+			var userList = room.getUserIdList();
+			var LoveLetter = require('./loveletter/app').app;
+			if (!user.room) {
+				return;
+			}
+			if (LoveLetter.isGameAlreadyStarted()) {
+				socketHelper.emitToCurrentUser('game.alreadyStarted');
+				return;
+			}
+			LoveLetter.createGame(userList);
+			LoveLetter.startGame();
 		});
 	});
 
