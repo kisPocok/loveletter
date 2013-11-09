@@ -19,6 +19,8 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
+app.use(express.cookieParser());
+app.use(express.cookieSession({secret:'almafa'}));
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('clients', require('./src/clients').clients);
@@ -37,5 +39,3 @@ io.set('log level', 1);
 GLOBAL.socketHandler = require('./src/socketHandler').socketHandler(io, app);
 
 app.get('/', routes.index);
-//app.get('/room/:name', routes.gamePlay);
-//app.get('/api/:object/:method', routes.api);

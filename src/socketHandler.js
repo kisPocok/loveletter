@@ -12,9 +12,9 @@ exports.socketHandler = function(io, app)
 
 	io.sockets.on('connection', function(socket)
 	{
+		var socketHelper = new SocketHelper(socket, io);
 		var user = new User(socket.id);
 		clients.addUser(user);
-		var socketHelper = new SocketHelper(socket, io);
 		var emitParams = {
 			userId: user.id
 		};
@@ -38,18 +38,35 @@ exports.socketHandler = function(io, app)
 
 		socket.on('game.start', function(params)
 		{
-			var room = roomManager.getRoom(user.room);
-			var userList = room.getUserIdList();
-			var LoveLetter = require('./loveletter/app').app;
 			if (!user.room) {
 				return;
 			}
+			var room = roomManager.getRoom(user.room);
+			var userList = room.getUserIdList();
+
+			var LoveLetterApp = require('./loveletter/app').App;
+			var LoveLetter = new LoveLetterApp(socketHelper, room);
 			if (LoveLetter.isGameAlreadyStarted()) {
 				socketHelper.emitToCurrentUser('game.alreadyStarted');
 				return;
 			}
 			LoveLetter.createGame(userList);
 			LoveLetter.startGame();
+			room.setGame(LoveLetter);
+		});
+
+		socket.on('game.getUpdates', function(params)
+		{
+			var user = clients.getUser(params.userId);
+			var room = roomManager.getRoom(user.room);
+			var LoveLetter = room.getGame();
+			var updateParams = {
+				activePlayer: LoveLetter.getActivePlayer().name,
+				deckCount: LoveLetter.getDeck().getCardinality(),
+				players: LoveLetter.getPlayersDiggest(),
+				yourself: LoveLetter.getPlayer(params.userId)
+			};
+			socketHelper.emitToUser(user, 'game.update', updateParams);
 		});
 	});
 

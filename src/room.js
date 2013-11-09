@@ -6,6 +6,7 @@ exports.room = function(roomName)
 {
 	this.name = roomName;
 	this.userIdList = [];
+	this.game = null;
 
 	/**
 	 * @param {User} user
@@ -44,5 +45,21 @@ exports.room = function(roomName)
 	this.getUserIdList = function()
 	{
 		return this.userIdList;
+	};
+
+	/**
+	 * @param {object} gameObject
+	 */
+	this.setGame = function(gameObject)
+	{
+		this.game = gameObject;
+	};
+
+	/**
+	 * @returns {null|object|*}
+	 */
+	this.getGame = function()
+	{
+		return this.game;
 	};
 };

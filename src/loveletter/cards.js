@@ -63,6 +63,14 @@ var Cards = (function(utils)
 			this.cards = this.originalCards;
 		};
 
+		/**
+		 * @returns {int}
+		 */
+		this.getCardinality = function()
+		{
+			return this.cards.length;
+		};
+
 		return this;
 	}
 

@@ -17,12 +17,13 @@ exports.SocketHelper = function(socketConnection, socketIO)
 	};
 
 	/**
-	 * @param {User|string} userId
+	 * @param {User|string} user
 	 * @param {string} eventName
 	 * @param {*} eventParams
 	 */
-	this.emitToUser = function(userId, eventName, eventParams)
+	this.emitToUser = function(user, eventName, eventParams)
 	{
+		var userId = user.id || user;
 		var params = eventParams || null;
 		this.io.sockets.socket(userId).emit(eventName, params);
 	};

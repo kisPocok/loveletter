@@ -4,28 +4,15 @@
  */
 exports.index = function(request, response)
 {
+	var userId = request.cookies.userId;
+	if (!userId) {
+		userId = Math.floor(Math.random() * 1500000);
+	}
+	response.cookie('userId', userId, {maxAge: 900000, httpOnly: true});
+	console.log(userId);
+
 	var params = {
 		title: 'Love Letter'
 	};
 	response.render('index', params);
 };
-
-/*
-exports.gamePlay = function(request, response)
-{
-	var params = {
-		'roomName': request.params.name
-	};
-	response.render('gameplay', params);
-};
-
-exports.api = function(request, response)
-{
-	var object = request.params.object;
-	var method = request.params.method;
-	response.send({
-		object: object,
-		method: method,
-	});
-};
-*/

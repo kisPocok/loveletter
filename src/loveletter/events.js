@@ -1,5 +1,4 @@
 var nodeEvents = require('events');
-	//socketIO   = require('socket.io');
 
 var Events = (function(nodeEvents)
 {
@@ -28,6 +27,9 @@ var Events = (function(nodeEvents)
 	 */
 	self.fire = function(eventName, eventParams)
 	{
+		console.log('EVENT FIRE:', eventName, eventParams);
+		return null;
+
 		try {
 			if (!self.enabled) {
 				return null;

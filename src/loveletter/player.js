@@ -3,7 +3,7 @@ var Cards  = require('./cards').cards;
 var Events = require('./events').events;
 
 /**
- * @param {int}    id
+ * @param {int} id
  * @param {string} name
  * @returns {*}
  * @constructor
@@ -14,7 +14,8 @@ function Player(id, name) {
 	this.cardsInHand = [];
 	this.wins        = 0;
 	this.protection  = false;
-	this.params      = {};
+	this.roomName    = null;
+	eventHandler     = null;
 
 	/*
 	this.watch('cardsInHand', function(objectName, oldValue, newValue) {
@@ -24,23 +25,44 @@ function Player(id, name) {
 	});
 	*/
 
+	/**
+	 * @param {socketHandler} eventHandler
+	 * @param {Room|string} room
+	 */
+	this.setEventHandler = function(eventHandlerParam, room)
+	{
+		eventHandler = eventHandlerParam;
+		this.roomName = room.name||room;
+	};
+
+	/**
+	 * @param {boolean} showParams
+	 * @returns {object}}
+	 */
+	this.getPublicInfo = function()
+	{
+		return {
+			name: this.name,
+			room: this.roomName,
+			cardCount: this.cardsInHand.length,
+			protection: !!this.protection,
+			wins: this.wins
+		};
+	};
+
+	/**
+	 * Draw a card from deck
+	 * @param {Deck} deck
+	 */
+	this.draw = function(deck)
+	{
+		var card = deck.draw();
+		this.cardsInHand.push(card);
+		eventHandler.emitToRoom(this.roomName, 'player.draw');
+	};
+
 	return this;
 }
-
-/**
- * Draw a card from deck
- * @param {Deck} deck
- */
-Player.prototype.draw = function(deck)
-{
-	var card = deck.draw();
-	this.cardsInHand.push(card);
-	var fireParams = {
-		card:   card,
-		player: this
-	};
-	Events.fire('player.draw', fireParams);
-};
 
 /**
  * Get the only one card from player's hand
@@ -267,22 +289,6 @@ Player.prototype.cleanUp = function()
 {
 	this.cardsInHand = [];
 	this.setDefault();
-};
-
-/**
- * Set parameter to user
- */
-Player.prototype.setParam = function(key, value)
-{
-	this.params[key] = value;
-};
-
-/**
- * Get parameter from user
- */
-Player.prototype.getParam = function(key)
-{
-	return this.params[key];
 };
 
 // Node export
