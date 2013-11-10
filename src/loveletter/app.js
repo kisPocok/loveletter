@@ -134,12 +134,28 @@ exports.App = function(eventHandler, room)
 
 	/**
 	 * Get ALL opponents
+	 * TODO ez biztos jól megy így? getActivePlayer nem mindig az mint aki lekéri
 	 *
 	 * @returns {Array}
 	 */
 	this.getOpponents = function()
 	{
 		var userId = this.getActivePlayer().id;
+		var players = this.getAllPlayers();
+		return players.filter(function(player) {
+			return player.id !== userId;
+		});
+	};
+
+	/**
+	 * TODO nem biztos, hogy kell, lehet jól megy a getOpponents is
+	 *
+	 * @param {User|string} user
+	 * @returns {Array}
+	 */
+	this.getPlayerOpponents = function(user)
+	{
+		var userId = user.id||user;
 		var players = this.getAllPlayers();
 		return players.filter(function(player) {
 			return player.id !== userId;
@@ -185,6 +201,20 @@ exports.App = function(eventHandler, room)
 	};
 
 	/**
+	 * @param {User|string} user
+	 * @returns {{activePlayer: string, deckCount: int, players: Array, yourself: Player}}
+	 */
+	this.getGameUpdateMessage = function(user)
+	{
+		return {
+			activePlayer: this.getActivePlayer().name,
+			deckCount: this.getDeck().getCardinality(),
+			players: this.getPlayersDiggest(),
+			yourself: this.getPlayer(user.id||user)
+		};
+	};
+
+	/**
 	 * Get deck library
 	 *
 	 * @returns {Deck}
@@ -205,8 +235,7 @@ exports.App = function(eventHandler, room)
 			// TODO FIXME for debug NOW
 			// return;
 		}
-		// TODO FIXME
-		// gameStarted = true;
+		gameStarted = true;
 
 		// TODO something usefull at start
 
@@ -217,19 +246,12 @@ exports.App = function(eventHandler, room)
 		var players = this.getAllPlayers();
 		for (var i in players) {
 			var player = players[i];
-			player.draw(this.getDeck());
+			player.draw(this.getDeck(), true); // silent draw
 		}
 
 		var activePlayer = this.getActivePlayer();
 		Game.nextTurnForPlayer(activePlayer, this.getDeck());
-
-		var playersDigest = this.getPlayersDiggest();
-		var params = {
-			players: playersDigest,
-			playerCount: playersDigest.length,
-			deckCount: deck.cards.length
-		};
-		eventHandler.emitToRoom(roomName, 'game.start', params);
+		eventHandler.emitToRoom(roomName, 'game.start');
 	};
 
 	/**

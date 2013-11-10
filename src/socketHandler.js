@@ -60,13 +60,25 @@ exports.socketHandler = function(io, app)
 			var user = clients.getUser(params.userId);
 			var room = roomManager.getRoom(user.room);
 			var LoveLetter = room.getGame();
-			var updateParams = {
-				activePlayer: LoveLetter.getActivePlayer().name,
-				deckCount: LoveLetter.getDeck().getCardinality(),
-				players: LoveLetter.getPlayersDiggest(),
-				yourself: LoveLetter.getPlayer(params.userId)
-			};
+			var updateParams = LoveLetter.getGameUpdateMessage(user);
 			socketHelper.emitToUser(user, 'game.update', updateParams);
+		});
+
+		socket.on('disconnect', function()
+		{
+			var user = clients.getUser(socket.id);
+			if (user.room) {
+				var room = roomManager.getRoom(user.room);
+				room.removeUser(user);
+				var emitParams = {
+					playerCount: room.getUserIdList().length
+				};
+				socketHelper.emitToRoom(room, 'room.playerLeft', emitParams);
+				var LoveLetter = room.getGame();
+				if (LoveLetter && LoveLetter.isGameAlreadyStarted()) {
+					LoveLetter.reset();
+				}
+			}
 		});
 	});
 

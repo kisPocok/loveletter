@@ -35,7 +35,10 @@ exports.room = function(roomName)
 	 */
 	this.removeUser = function(user)
 	{
-		console.log('Not implemented yet');
+		var index = this.userIdList.indexOf(user.id);
+		if (index > -1) {
+			this.userIdList.splice(index, 1);
+		}
 	};
 
 	/**

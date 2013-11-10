@@ -20,28 +20,44 @@ var GamePlay = new (function GamePlay()
 		this.activePlayerName = data.activePlayer;
 		this.players = data.players;
 		this.opponents = data.players.filter(function(player) {
-			return player.name !== data.currentPlayer;
+			return player.name !== data.yourself.name;
 		});
 		this.deckCount = data.deckCount;
-		console.log('OPPP', this.opponents);
 	};
 
-	this.render = function()
+	/**
+	 * @param {int} playersCount
+	 */
+	this.renderGameQueue = function(playersCount)
 	{
-		var gp = $("#gameplay");
+		var gameQueue = $("#gamequeue"),
+			startButton = $('#start');
+
+		if (playersCount > 1) {
+			startButton.show();
+		} else {
+			startButton.hide();
+		}
+
+		gameQueue.text(playersCount + ' player(s) in the queue.');
+	};
+
+	this.renderGamePlay = function()
+	{
+		var gamePlay = $("#gameplay");
 
 		var currentPlayerHtml = createPlayerGameplay(
 			this.currentPlayer.name, this.currentPlayer.cardsInHand
 		);
 
-		var opponentsHtml = '<div id="opponents">';
+		var i, opponentsHtml = '<div id="opponents">';
 		for (i in this.opponents) {
 			var opp = this.opponents[i];
 			opponentsHtml += createOpponentGameplay(opp.name, opp.cardCount);
 		}
 		opponentsHtml += '</div>';
 
-		gp.html(currentPlayerHtml + opponentsHtml);
+		gamePlay.html(currentPlayerHtml + opponentsHtml);
 	};
 
 	/**
@@ -93,35 +109,28 @@ socket.on('handshake', function(response) {
 });
 
 socket.on('room.playerJoined', function(response) {
-	console.log('players:', response);
-	if (response.playerCount > 1) {
-		$('#start').show();
-	}
+	GamePlay.renderGameQueue(response.playerCount);
 });
 
 socket.on('room.playerLeft', function(response) {
-	console.log('remaining players:', response);
-	if (response.playerCount < 2) {
-		$('#start').hide();
-	}
+	GamePlay.renderGameQueue(response.playerCount);
 });
 
 socket.on('player.draw', function() {
-	console.log('A player drawed a card.');
+	socket.emit('game.getUpdates', {userId: user.id});
+});
+
+socket.on('game.start', function(response) {
 	socket.emit('game.getUpdates', {userId: user.id});
 });
 
 socket.on('game.update', function(response) {
 	console.log('Update the gameplay', response);
 	GamePlay.update(response);
-	GamePlay.render();
+	GamePlay.renderGamePlay();
 });
 
-
-
-
 var unimplementedEvents = [
-	'game.start',
 	'game.playCountress',
 	'game.trade',
 	'game.discard.win',
@@ -135,6 +144,9 @@ var unimplementedEvents = [
 	'game.guess.failed',
 	'game.attack',
 	'game.loose',
+	'game.nextPlayer',
+	'game.reset',
+	'game.end',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
 	socket.on(eventName, function(response) {
@@ -155,48 +167,9 @@ $(function() {
 			user: user,
 			room: roomName
 		};
-		console.log('client.room.join', params);
 		socket.emit('room.join', params);
 	});
 	$('#start').on('click', function() {
 		socket.emit('game.start');
 	});
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function getGame()
-{
-	socket.emit('game.getGame', user.id);
-}
-function startGame()
-{
-	socket.emit('game.start', user.id);
-}
-function getPlayers()
-{
-	socket.emit('game.getPlayers', user.id);
-}
-function getDeck()
-{
-	socket.emit('game.getDeck', user.id);
-}
-function getPlayerCards()
-{
-	socket.emit('game.getCards', user.id);
-}

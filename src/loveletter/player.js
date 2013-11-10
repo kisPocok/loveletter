@@ -53,13 +53,14 @@ function Player(id, name) {
 	/**
 	 * Draw a card from deck
 	 * @param {Deck} deck
+	 * @param {boolean} silentEventFire
 	 */
-	this.draw = function(deck)
+	this.draw = function(deck, silentEventFire)
 	{
 		var card = deck.draw();
 		this.cardsInHand.push(card);
 
-		if (Events.enabled) {
+		if (Events.enabled && !silentEventFire) {
 			eventHandler.emitToRoom(this.roomName, 'player.draw');
 		}
 	};
