@@ -125,7 +125,9 @@ describe("Player.basics", function() {
 describe("Player.Attack", function() {
 	beforeEach(function() {
 		p1 = new Player(1, 'irrelevant');
+		p1.setEventHandlerAndRoom(socketHandlerMock, 'test');
 		p2 = new Player(2, 'irrelevant');
+		p2.setEventHandlerAndRoom(socketHandlerMock, 'test');
 		gameLogicMock = Utils.clone(Game);
 	});
 
@@ -315,14 +317,20 @@ describe("Game.isCardNeedTarget", function() {
 });
 
 describe("Game.Guess", function() {
-	var p1          = new Player(1, 'irrelevant');
-	var p2          = new Player(2, 'irrelevant');
-	var guessParams = {guess: 8};
-	p1.setHand(guard, guard);
+	beforeEach(function() {
+		p1 = new Player(1, 'irrelevant');
+		p2 = new Player(2, 'irrelevant');
+		guessParams = {guess: 8};
+		p1.setHand(guard, guard);
+		p1.setEventHandlerAndRoom(socketHandlerMock, 'test');
+		p2.setEventHandlerAndRoom(socketHandlerMock, 'test');
+	});
 
 	it("gotcha I", function() {
 		p2.setHand(princess);
-		expect(p1.attack(Game, guard, p2, guessParams)).toBeTruthy();
+		expect(
+			p1.attack(Game, guard, p2, guessParams).response
+		).toBeTruthy();
 	});
 
 	it("gotcha II", function() {
@@ -332,7 +340,7 @@ describe("Game.Guess", function() {
 
 	it("missed I", function() {
 		p2.setHand(guard);
-		expect(p1.attack(Game, guard, p2, guessParams)).toBeFalsy();
+		expect(p1.attack(Game, guard, p2, guessParams).response).toBeFalsy();
 	});
 
 	it("missed II", function() {
@@ -341,7 +349,7 @@ describe("Game.Guess", function() {
 	});
 
 	it("no target", function() {
-		expect(p1.attack(Game, guard, null, {guess:0})).toBeNull();
+		expect(p1.attack(Game, guard, null, {guess:0}).response).toBeNull();
 	});
 
 	var validGuessCards = [2,3,4,5,6,7,8];
@@ -445,6 +453,8 @@ describe("Game.Trade", function() {
 	beforeEach(function() {
 		p1 = new Player(1, 'irrelevant');
 		p2 = new Player(2, 'irrelevant');
+		p1.setEventHandlerAndRoom(socketHandlerMock, 'test');
+		p2.setEventHandlerAndRoom(socketHandlerMock, 'test');
 		deck = Cards.generateDefaultDeck();;
 	});
 
