@@ -64,6 +64,57 @@ exports.socketHandler = function(io, app)
 			socketHelper.emitToUser(user, 'game.update', updateParams);
 		});
 
+		socket.on('game.playCard', function(params)
+		{
+			var user = clients.getUser(params.userId);
+			var room = roomManager.getRoom(user.room);
+			var LoveLetter = room.getGame();
+			var Game = LoveLetter.getGame();
+
+			if (LoveLetter.getActivePlayer().id != user.id) {
+				// TODO error handling
+				console.error('Nem Te vagy az aktív játékos!');
+				return;
+			}
+
+			var card = LoveLetter.getCards().getById(params.cardId);
+
+			if (Game.isCardNeedPrompt(card) && !params.guess) {
+				console.log('Card need prompt');
+				socketHelper.emitToCurrentUser('card.prompt', params);
+
+			} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
+				console.log('Card need target');
+				socketHelper.emitToCurrentUser('card.target', params);
+
+			} else {
+				console.log('USER:', user.id);
+				console.log('TARGET:', params.target||user);
+
+				var player = LoveLetter.getPlayer(user);
+				var targetPlayer = LoveLetter.getPlayer(params.target||user);
+				var isPlayable = Game.isPlayableCard(card, player, targetPlayer, params.extraParams);
+
+				console.log('is card playable?', isPlayable ? 'Y' : 'N');
+
+				if (isPlayable) {
+					try {
+						if (card.id === 5) {
+							params.deck = LoveLetter.getDeck();
+						}
+						var response = player.attack(Game, card, targetPlayer, params);
+						eventHandler.emitToRoom(room, 'game.attack', response);
+						console.log('Game.attack!');
+					} catch(er) {
+						console.log('Hiba történt a lap kijátszása közben:', er);
+					}
+				} else {
+					// TODO nem lehet kijátszani, error handling
+					console.log('Nem kijatszható a lap!');
+				}
+			}
+		});
+
 		socket.on('disconnect', function()
 		{
 			var user = clients.getUser(socket.id);

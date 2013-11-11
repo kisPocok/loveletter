@@ -26,6 +26,18 @@ var GamePlay = new (function GamePlay()
 	};
 
 	/**
+	 * @returns {int}
+	 */
+	this.prompt = function()
+	{
+		var guess;
+		if (guess = prompt('Melyik kártyát választod? (2-től 8-ig írj egy számot!)')) {
+			return parseInt(guess);
+		}
+		return 0;
+	}
+
+	/**
 	 * @param {int} playersCount
 	 */
 	this.renderGameQueue = function(playersCount)
@@ -58,6 +70,16 @@ var GamePlay = new (function GamePlay()
 		opponentsHtml += '</div>';
 
 		gamePlay.html(currentPlayerHtml + opponentsHtml);
+		gamePlay.find('#yourself').find('.card').click(function(event)
+		{
+			var params = {
+				cardId: $(event.target).data('cardid'),
+				extraParams: {}, // TODO
+				userId: user.id,
+				targetPlayerId: null // TODO
+			};
+			socket.emit('game.playCard', params);
+		});
 	};
 
 	/**
@@ -70,7 +92,10 @@ var GamePlay = new (function GamePlay()
 		var i, card, cardsHtml = '';
 		for (i in cards) {
 			card = cards[i];
-			cardsHtml += '<div class="card card' + card.id + '">' + card.name + '(' + card.id + ')</div>';
+			cardsHtml += '<a class="card card' + card.id + '" data-cardid="' + card.id + '">';
+			cardsHtml += card.name;
+			cardsHtml += '(' + card.id + ')</a>';
+			cardsHtml += '<br />';
 		}
 		return '<!-- player\'s spot -->' +
 			'<div id="yourself">' +
@@ -104,8 +129,9 @@ var GamePlay = new (function GamePlay()
 });
 
 socket.on('handshake', function(response) {
-	console.log('Handshake', response.userId);
+	//console.log('Handshake', response.userId);
 	user.id = response.userId;
+	$('#enter').click(); // TODO autoconnect to room
 });
 
 socket.on('room.playerJoined', function(response) {
@@ -120,7 +146,11 @@ socket.on('player.draw', function() {
 	socket.emit('game.getUpdates', {userId: user.id});
 });
 
-socket.on('game.start', function(response) {
+socket.on('game.start', function() {
+	socket.emit('game.getUpdates', {userId: user.id});
+});
+
+socket.on('game.attack', function() {
 	socket.emit('game.getUpdates', {userId: user.id});
 });
 
@@ -129,6 +159,21 @@ socket.on('game.update', function(response) {
 	GamePlay.update(response);
 	GamePlay.renderGamePlay();
 });
+
+socket.on('card.prompt', function(params) {
+	params.guess = GamePlay.prompt();
+	socket.emit('game.playCard', params);
+});
+
+socket.on('card.target', function(params) {
+	params.target = GamePlay.opponents[0].name; // TODO ide user választó kell. Figyelj majd arra, hogy név alapján megy az azonosítás!
+	socket.emit('game.playCard', params);
+});
+
+
+
+
+
 
 var unimplementedEvents = [
 	'game.playCountress',
@@ -142,7 +187,6 @@ var unimplementedEvents = [
 	'game.peek',
 	'game.guess.success',
 	'game.guess.failed',
-	'game.attack',
 	'game.loose',
 	'game.nextPlayer',
 	'game.reset',
@@ -152,12 +196,6 @@ $(unimplementedEvents).each(function(i, eventName) {
 	socket.on(eventName, function(response) {
 		console.log('Missing implementation: "' + eventName + '"', response);
 	});
-});
-
-
-socket.on('game.getGame', function(data) {
-	game = data;
-	console.log('game:', game);
 });
 
 $(function() {
