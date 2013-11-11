@@ -40,11 +40,27 @@ exports.App = function(eventHandler, room)
 			for (i = 0; i < length; i++) {
 				// TODO fix player's name
 				player = new Player(playerList[i], playerList[i]);
-				player.setEventHandler(eventHandler, room);
+				player.setEventHandlerAndRoom(eventHandler, room);
 				this.addPlayer(player);
 			}
 		}
 		return players;
+	};
+
+	/**
+	 * @returns {game}
+	 */
+	this.getGame = function()
+	{
+		return Game;
+	};
+
+	/**
+	 * @returns {cards}
+	 */
+	this.getCards = function()
+	{
+		return Cards;
 	};
 
 	/**
@@ -109,10 +125,12 @@ exports.App = function(eventHandler, room)
 	/**
 	 * Get player by userId
 	 *
+	 * @param {User|string} user
 	 * @returns {Player}
 	 */
-	this.getPlayer = function(userId)
+	this.getPlayer = function(user)
 	{
+		var userId = user.id || user;
 		var players = this.getAllPlayers();
 		return players.filter(function(player) {
 			return player.id === userId;

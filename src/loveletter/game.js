@@ -166,7 +166,6 @@ var Game = (function(Cards)
 	self.isCardNeedPrompt = function(card)
 	{
 		return card.id === 1;
-
 	};
 
 	/**

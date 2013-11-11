@@ -27,7 +27,7 @@ var Events = (function(nodeEvents)
 	 */
 	self.fire = function(eventName, eventParams)
 	{
-		console.log('EVENT FIRE:', eventName, eventParams);
+		console.log('@deprecated EVENTS.FIRE:', eventName, eventParams);
 		return null;
 
 		try {
