@@ -3,7 +3,7 @@
  * @param {io} io
  * @param {express} app
  */
-exports.socketHandler = function(io, app)
+exports.game = function(io, app)
 {
 	var SocketHelper = app.get('socketHelper');
 	var roomManager = app.get('roomManager');
@@ -18,10 +18,17 @@ exports.socketHandler = function(io, app)
 		var emitParams = {
 			userId: user.id
 		};
+
 		socketHelper.emitToCurrentUser('handshake', emitParams);
 		socketHelper.joinRoomCurrentUser('queue');
 
-		socket.on('room.join', function(params) {
+		socket.on('room.join', joinRoom);
+		socket.on('game.start', startTheGame);
+		socket.on('game.getUpdates', getUpdates);
+		socket.on('game.playCard', playCard);
+		socket.on('disconnect', disconnect);
+
+		function joinRoom(params) {
 			var user = clients.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
 			var room = roomManager.createRoom(params.room);
 			var isEntered = room.addUser(user);
@@ -34,9 +41,9 @@ exports.socketHandler = function(io, app)
 			};
 			socketHelper.changeRoomCurrentUser('queue', params.room);
 			socketHelper.emitToRoom(params.room, 'room.playerJoined', emitParams);
-		});
+		}
 
-		socket.on('game.start', function(params)
+		function startTheGame(params)
 		{
 			if (!user.room) {
 				return;
@@ -53,18 +60,18 @@ exports.socketHandler = function(io, app)
 			LoveLetter.createGame(userList);
 			LoveLetter.startGame();
 			room.setGame(LoveLetter);
-		});
+		}
 
-		socket.on('game.getUpdates', function(params)
+		function getUpdates(params)
 		{
 			var user = clients.getUser(params.userId);
 			var room = roomManager.getRoom(user.room);
 			var LoveLetter = room.getGame();
 			var updateParams = LoveLetter.getGameUpdateMessage(user);
 			socketHelper.emitToUser(user, 'game.update', updateParams);
-		});
+		}
 
-		socket.on('game.playCard', function(params)
+		function playCard(params)
 		{
 			var user = clients.getUser(params.userId);
 			var room = roomManager.getRoom(user.room);
@@ -113,9 +120,9 @@ exports.socketHandler = function(io, app)
 					console.log('Nem kijatszható a lap!');
 				}
 			}
-		});
+		}
 
-		socket.on('disconnect', function()
+		function disconnect()
 		{
 			var user = clients.getUser(socket.id);
 			if (user.room) {
@@ -130,7 +137,7 @@ exports.socketHandler = function(io, app)
 					LoveLetter.reset();
 				}
 			}
-		});
+		}
 	});
 
 	return this;

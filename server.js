@@ -36,6 +36,6 @@ if ('development' === app.get('env')) {
 var server = http.createServer(app).listen(app.get('port'));
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
-GLOBAL.socketHandler = require('./src/socketHandler').socketHandler(io, app);
+GLOBAL.socketHandler = require('./src/game').game(io, app);
 
 app.get('/', routes.index);
