@@ -1,17 +1,16 @@
 /**
  * @type {function}
  * @param {io} io
- * @param {express} app
  */
-exports.game = function(io, app)
+exports.initGame = function(io)
 {
-	var SocketHelper = app.get('socketHelper');
-	var roomManager = app.get('roomManager');
-	var clients = app.get('clients');
-	var User = app.get('user');
-
-	io.sockets.on('connection', function(socket)
+	return function(socket)
 	{
+		var SocketHelper = require('./socketHelper').SocketHelper;
+		var roomManager = require('./roomManager').roomManager;
+		var clients = require('./clients').clients;
+		var User = require('./user').User;
+
 		var socketHelper = new SocketHelper(socket, io);
 		var user = new User(socket.id);
 		clients.addUser(user);
@@ -138,7 +137,5 @@ exports.game = function(io, app)
 				}
 			}
 		}
-	});
-
-	return this;
+	};
 };

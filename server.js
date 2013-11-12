@@ -23,10 +23,6 @@ app.use(express.cookieParser());
 app.use(express.cookieSession({secret:'almafa'}));
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('clients', require('./src/clients').clients);
-app.set('roomManager', require('./src/roomManager').roomManager);
-app.set('socketHelper', require('./src/socketHelper').SocketHelper);
-app.set('user', require('./src/user').User);
 
 // development only
 if ('development' === app.get('env')) {
@@ -36,6 +32,6 @@ if ('development' === app.get('env')) {
 var server = http.createServer(app).listen(app.get('port'));
 var io = require('socket.io').listen(server);
 io.set('log level', 1);
-GLOBAL.socketHandler = require('./src/game').game(io, app);
-
 app.get('/', routes.index);
+
+io.sockets.on('connection', require('./src/game').initGame(io));
