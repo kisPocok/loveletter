@@ -1,9 +1,9 @@
-Love Letter Card Game README
+Love Letter Card Game
 ================================
 
-##Installation on MAC OSX
+###Installation on MAC OSX
 
-### Install node.js
+#### Install node.js
 
     $ git clone git://github.com/ry/node.git
     cd node
@@ -11,28 +11,24 @@ Love Letter Card Game README
     make
     sudo make install
 
-### Install npm (node package manager)
+#### Install npm (node package manager)
 
     $ curl https://npmjs.org/install.sh | sh
 
-### Download the source code
+#### Download the source code
 
     git clone ~
     cd loveletter
 
-### Install git commit hooks
+#### Install git commit hooks
 
     ln -s ../../git-hooks/pre-commit.sh .git/hooks/pre-commit
 
-### Create configuration file
-
-    cp src/config.js.dist src/config.js
-
-### Install dependencies
+#### Install dependencies
 
     npm install
     npm update
 
-### Start the application
+#### Start the application
 
     npm start
