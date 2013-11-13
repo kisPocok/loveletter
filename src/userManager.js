@@ -22,7 +22,7 @@ exports.UserManager = function()
 	 */
 	this.removeUser = function(user)
 	{
-		console.log('Not implemented yet');
+		delete this.clientList[user.id];
 	};
 
 	/**
