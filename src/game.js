@@ -3,14 +3,16 @@ var RoomManager = require('./RoomManager').RoomManager();
 var clients = require('./clients').clients;
 var User = require('./user').User;
 
+var socketHelper, user;
+
 /**
  * @type {function}
  * @param {socket} socket
  */
 exports.initGame = function(socket)
 {
-	var socketHelper = new SocketHelper(socket);
-	var user = new User(socket.id);
+	socketHelper = new SocketHelper(socket);
+	user = new User(socket.id);
 	clients.addUser(user);
 
 	var emitParams = {
@@ -23,103 +25,106 @@ exports.initGame = function(socket)
 	socket.on('game.start', startTheGame);
 	socket.on('game.getUpdates', getUpdates);
 	socket.on('game.playCard', playCard);
-	socket.on('disconnect', disconnect);
+	socket.on('disconnect', disconnect(socket));
+};
 
-	function joinRoom(params) {
-		var user = clients.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
-		var room = RoomManager.createRoom(params.room);
-		var isEntered = room.addUser(user);
-		if (!isEntered) {
-			return;
-		}
-		user.updateWithRoom(room);
-		var emitParams = {
-			playerCount: room.getUserIdList().length
-		};
-		socketHelper.changeRoomCurrentUser('queue', params.room);
-		socketHelper.emitToRoom(params.room, 'room.playerJoined', emitParams);
+function joinRoom(params) {
+	var user = clients.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
+	var room = RoomManager.createRoom(params.room);
+	var isEntered = room.addUser(user);
+	if (!isEntered) {
+		return;
+	}
+	user.updateWithRoom(room);
+	var emitParams = {
+		playerCount: room.getUserIdList().length
+	};
+	socketHelper.changeRoomCurrentUser('queue', params.room);
+	socketHelper.emitToRoom(params.room, 'room.playerJoined', emitParams);
+}
+
+function startTheGame(params)
+{
+	if (!user.room) {
+		return;
+	}
+	var room = RoomManager.getRoom(user.room);
+	var userList = room.getUserIdList();
+
+	var LoveLetterApp = require('./loveletter/app').App;
+	var LoveLetter = new LoveLetterApp(socketHelper, room);
+	if (LoveLetter.isGameAlreadyStarted()) {
+		socketHelper.emitToCurrentUser('game.alreadyStarted');
+		return;
+	}
+	LoveLetter.createGame(userList);
+	LoveLetter.startGame();
+	room.setGame(LoveLetter);
+}
+
+function getUpdates(params)
+{
+	var user = clients.getUser(params.userId);
+	var room = RoomManager.getRoom(user.room);
+	var LoveLetter = room.getGame();
+	var updateParams = LoveLetter.getGameUpdateMessage(user);
+	socketHelper.emitToUser(user, 'game.update', updateParams);
+}
+
+function playCard(params)
+{
+	var user = clients.getUser(params.userId);
+	var room = RoomManager.getRoom(user.room);
+	var LoveLetter = room.getGame();
+	var Game = LoveLetter.getGame();
+
+	if (LoveLetter.getActivePlayer().id != user.id) {
+		// TODO error handling
+		console.error('Nem Te vagy az aktív játékos!');
+		return;
 	}
 
-	function startTheGame(params)
-	{
-		if (!user.room) {
-			return;
-		}
-		var room = RoomManager.getRoom(user.room);
-		var userList = room.getUserIdList();
+	var card = LoveLetter.getCards().getById(params.cardId);
 
-		var LoveLetterApp = require('./loveletter/app').App;
-		var LoveLetter = new LoveLetterApp(socketHelper, room);
-		if (LoveLetter.isGameAlreadyStarted()) {
-			socketHelper.emitToCurrentUser('game.alreadyStarted');
-			return;
-		}
-		LoveLetter.createGame(userList);
-		LoveLetter.startGame();
-		room.setGame(LoveLetter);
-	}
+	if (Game.isCardNeedPrompt(card) && !params.guess) {
+		console.log('Card need prompt');
+		socketHelper.emitToCurrentUser('card.prompt', params);
 
-	function getUpdates(params)
-	{
-		var user = clients.getUser(params.userId);
-		var room = RoomManager.getRoom(user.room);
-		var LoveLetter = room.getGame();
-		var updateParams = LoveLetter.getGameUpdateMessage(user);
-		socketHelper.emitToUser(user, 'game.update', updateParams);
-	}
+	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
+		console.log('Card need target');
+		socketHelper.emitToCurrentUser('card.target', params);
 
-	function playCard(params)
-	{
-		var user = clients.getUser(params.userId);
-		var room = RoomManager.getRoom(user.room);
-		var LoveLetter = room.getGame();
-		var Game = LoveLetter.getGame();
+	} else {
+		console.log('USER:', user.id);
+		console.log('TARGET:', params.target||user);
 
-		if (LoveLetter.getActivePlayer().id != user.id) {
-			// TODO error handling
-			console.error('Nem Te vagy az aktív játékos!');
-			return;
-		}
+		var player = LoveLetter.getPlayer(user);
+		var targetPlayer = LoveLetter.getPlayer(params.target||user);
+		var isPlayable = Game.isPlayableCard(card, player, targetPlayer, params.extraParams);
 
-		var card = LoveLetter.getCards().getById(params.cardId);
+		console.log('is card playable?', isPlayable ? 'Y' : 'N');
 
-		if (Game.isCardNeedPrompt(card) && !params.guess) {
-			console.log('Card need prompt');
-			socketHelper.emitToCurrentUser('card.prompt', params);
-
-		} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-			console.log('Card need target');
-			socketHelper.emitToCurrentUser('card.target', params);
-
-		} else {
-			console.log('USER:', user.id);
-			console.log('TARGET:', params.target||user);
-
-			var player = LoveLetter.getPlayer(user);
-			var targetPlayer = LoveLetter.getPlayer(params.target||user);
-			var isPlayable = Game.isPlayableCard(card, player, targetPlayer, params.extraParams);
-
-			console.log('is card playable?', isPlayable ? 'Y' : 'N');
-
-			if (isPlayable) {
-				try {
-					if (card.id === 5) {
-						params.deck = LoveLetter.getDeck();
-					}
-					var response = player.attack(Game, card, targetPlayer, params);
-					eventHandler.emitToRoom(room, 'game.attack', response);
-					console.log('Game.attack!');
-				} catch(er) {
-					console.log('Hiba történt a lap kijátszása közben:', er);
+		if (isPlayable) {
+			try {
+				if (card.id === 5) {
+					params.deck = LoveLetter.getDeck();
 				}
-			} else {
-				// TODO nem lehet kijátszani, error handling
-				console.log('Nem kijatszható a lap!');
+				var response = player.attack(Game, card, targetPlayer, params);
+				eventHandler.emitToRoom(room, 'game.attack', response);
+				console.log('Game.attack!');
+			} catch(er) {
+				console.log('Hiba történt a lap kijátszása közben:', er);
 			}
+		} else {
+			// TODO nem lehet kijátszani, error handling
+			console.log('Nem kijatszható a lap!');
 		}
 	}
+}
 
-	function disconnect()
+function disconnect(socket)
+{
+	return function()
 	{
 		var user = clients.getUser(socket.id);
 		if (user.room) {
@@ -134,5 +139,5 @@ exports.initGame = function(socket)
 				LoveLetter.reset();
 			}
 		}
-	}
-};
+	};
+}
