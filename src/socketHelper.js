@@ -1,10 +1,10 @@
 /**
  * Room
  */
-exports.SocketHelper = function(socketConnection, socketIO)
+exports.SocketHelper = function(socketConnection)
 {
 	this.socketConnection = socketConnection;
-	this.io = socketIO;
+	this.io = GLOBAL.io;
 
 	/**
 	 * @param {string} eventName

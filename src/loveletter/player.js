@@ -271,7 +271,9 @@ Player.prototype.loose = function(gameLogic)
 		player:  this,
 		players: newPlayers
 	};
-	Events.fire('player.loose', params);
+	if (Events.enabled && !silentEventFire) {
+		eventHandler.emitToRoom(this.roomName, 'player.loose', params);
+	}
 };
 
 /**
