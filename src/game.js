@@ -1,5 +1,5 @@
 var SocketHelper = require('./socketHelper').SocketHelper;
-var roomManager = require('./roomManager').roomManager;
+var RoomManager = require('./RoomManager').RoomManager();
 var clients = require('./clients').clients;
 var User = require('./user').User;
 
@@ -27,7 +27,7 @@ exports.initGame = function(socket)
 
 	function joinRoom(params) {
 		var user = clients.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
-		var room = roomManager.createRoom(params.room);
+		var room = RoomManager.createRoom(params.room);
 		var isEntered = room.addUser(user);
 		if (!isEntered) {
 			return;
@@ -45,7 +45,7 @@ exports.initGame = function(socket)
 		if (!user.room) {
 			return;
 		}
-		var room = roomManager.getRoom(user.room);
+		var room = RoomManager.getRoom(user.room);
 		var userList = room.getUserIdList();
 
 		var LoveLetterApp = require('./loveletter/app').App;
@@ -62,7 +62,7 @@ exports.initGame = function(socket)
 	function getUpdates(params)
 	{
 		var user = clients.getUser(params.userId);
-		var room = roomManager.getRoom(user.room);
+		var room = RoomManager.getRoom(user.room);
 		var LoveLetter = room.getGame();
 		var updateParams = LoveLetter.getGameUpdateMessage(user);
 		socketHelper.emitToUser(user, 'game.update', updateParams);
@@ -71,7 +71,7 @@ exports.initGame = function(socket)
 	function playCard(params)
 	{
 		var user = clients.getUser(params.userId);
-		var room = roomManager.getRoom(user.room);
+		var room = RoomManager.getRoom(user.room);
 		var LoveLetter = room.getGame();
 		var Game = LoveLetter.getGame();
 
@@ -123,7 +123,7 @@ exports.initGame = function(socket)
 	{
 		var user = clients.getUser(socket.id);
 		if (user.room) {
-			var room = roomManager.getRoom(user.room);
+			var room = RoomManager.getRoom(user.room);
 			room.removeUser(user);
 			var emitParams = {
 				playerCount: room.getUserIdList().length
