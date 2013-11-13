@@ -128,52 +128,40 @@ var GamePlay = new (function GamePlay()
 
 });
 
-socket.on('handshake', function(response) {
+socket.on('handshake', handshake);
+socket.on('room.playerJoined', renderQueue);
+socket.on('room.playerLeft', renderQueue);
+socket.on('player.draw', getUpdates);
+socket.on('game.start', getUpdates);
+socket.on('game.attack', getUpdates);
+socket.on('game.update', update);
+socket.on('card.prompt', cardPrompt);
+socket.on('card.target', cardTarget);
+
+function handshake(response) {
 	//console.log('Handshake', response.userId);
 	user.id = response.userId;
 	$('#enter').click(); // TODO autoconnect to room
-});
-
-socket.on('room.playerJoined', function(response) {
+}
+function renderQueue(response) {
 	GamePlay.renderGameQueue(response.playerCount);
-});
-
-socket.on('room.playerLeft', function(response) {
-	GamePlay.renderGameQueue(response.playerCount);
-});
-
-socket.on('player.draw', function() {
+}
+function getUpdates() {
 	socket.emit('game.getUpdates', {userId: user.id});
-});
-
-socket.on('game.start', function() {
-	socket.emit('game.getUpdates', {userId: user.id});
-});
-
-socket.on('game.attack', function() {
-	socket.emit('game.getUpdates', {userId: user.id});
-});
-
-socket.on('game.update', function(response) {
+}
+function update(response) {
 	console.log('Update the gameplay', response);
 	GamePlay.update(response);
 	GamePlay.renderGamePlay();
-});
-
-socket.on('card.prompt', function(params) {
+}
+function cardPrompt(params) {
 	params.guess = GamePlay.prompt();
 	socket.emit('game.playCard', params);
-});
-
-socket.on('card.target', function(params) {
+}
+function cardTarget(params) {
 	params.target = GamePlay.opponents[0].name; // TODO ide user választó kell. Figyelj majd arra, hogy név alapján megy az azonosítás!
 	socket.emit('game.playCard', params);
-});
-
-
-
-
-
+}
 
 var unimplementedEvents = [
 	'game.playCountress',
