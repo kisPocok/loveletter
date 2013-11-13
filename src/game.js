@@ -12,10 +12,10 @@ exports.initGame = function(socket)
 	var socketHelper = new SocketHelper(socket);
 	var user = new User(socket.id);
 	clients.addUser(user);
+
 	var emitParams = {
 		userId: user.id
 	};
-
 	socketHelper.emitToCurrentUser('handshake', emitParams);
 	socketHelper.joinRoomCurrentUser('queue');
 
