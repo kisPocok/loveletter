@@ -1,51 +1,54 @@
 /**
- * Client Lister
- * @type {object}
+ * User Lister
+ * @type {function}
  */
-exports.clients = {
+exports.UserManager = function()
+{
 	/**
 	 * The client list
 	 */
-	clientList: {},
+	this.clientList = {};
 
 	/**
 	 * @param {User} user
 	 */
-	addUser: function(user)
+	this.addUser = function(user)
 	{
 		this.clientList[user.id] = user;
-	},
+	};
 
 	/**
 	 * @param {User} user
 	 */
-	removeUser: function(user)
+	this.removeUser = function(user)
 	{
 		console.log('Not implemented yet');
-	},
+	};
 
 	/**
 	 * @param {string} userId
 	 * @returns {User|null}
 	 */
-	getUser: function(userId)
+	this.getUser = function(userId)
 	{
 		return this.clientList[userId];
-	},
+	};
 
 	/**
 	 * Get client List
 	 */
-	getList: function()
+	this.getList = function()
 	{
 		return this.clientList;
-	},
+	};
 
 	/**
 	 * @returns {integer}
 	 */
-	count: function()
+	this.count = function()
 	{
 		return this.getList().length;
-	}
+	};
+
+	return this;
 };
