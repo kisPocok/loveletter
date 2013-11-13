@@ -30,8 +30,8 @@ if ('development' === app.get('env')) {
 }
 
 var server = http.createServer(app).listen(app.get('port'));
-var io = require('socket.io').listen(server);
+GLOBAL.io = require('socket.io').listen(server);
 io.set('log level', 1);
 app.get('/', routes.index);
 
-io.sockets.on('connection', require('./src/game').initGame(io));
+io.sockets.on('connection', require('./src/game').initGame);
