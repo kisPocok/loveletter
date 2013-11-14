@@ -1,9 +1,8 @@
+var Deck = require('./deck').Deck;
 var utils = require('./utils').utils;
 
-var Cards = (function(utils)
+exports.cards = (function()
 {
-	var self = {};
-
 	/**
 	 * @param {int}      id
 	 * @param {string}   name
@@ -22,63 +21,12 @@ var Cards = (function(utils)
 		return this;
 	}
 
-	/**
-	 * @param cardList
-	 * @returns {*}
-	 * @constructor
-	 */
-	function Deck(cardList) {
-		this.originalCards = cardList;
-		this.cards         = cardList;
-
-		/**
-		 * Draw a card
-		 * @returns {*}
-		 */
-		this.draw = function()
-		{
-			var card = this.cards[0];
-			this.cards.splice(0, 1);
-			return card;
-		};
-
-		/**
-		 * Shuffle your deck
-		 */
-		this.shuffle = function()
-		{
-			var o = this.cards;
-			// TODO array shuffle! :)
-			for (var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x) {
-				// for statement have empty body
-			}
-			this.cards = o;
-		};
-
-		/**
-		 * Rebuild deck
-		 */
-		this.renew = function()
-		{
-			this.cards = this.originalCards;
-		};
-
-		/**
-		 * @returns {int}
-		 */
-		this.getCardinality = function()
-		{
-			return this.cards.length;
-		};
-
-		return this;
-	}
 
 	/**
 	 * Important constants
 	 * @type {{LOOSE_THE_GAME: string, WIN_THE_GAME: string, COMPARE_HANDS: string, LOOK_AT_A_HAND: string, GUESS_A_HAND: string}}
 	 */
-	self.constants = {
+	this.constants = {
 		LOOSE_THE_GAME: 'Loose the game',
 		WIN_THE_GAME:   'Win the game',
 		COMPARE_HANDS:  'Compare Hands, lower hand is out',
@@ -86,15 +34,15 @@ var Cards = (function(utils)
 		GUESS_A_HAND:   'Guess a player\'s hand',
 	};
 
-	self.list = {};
-	self.list.princess = new Card(8, 'Princess', 1, 'Lose if discarded', self.constants.LOOSE_THE_GAME);
-	self.list.countess = new Card(7, 'Countess', 1, 'Discard if caught with King or Prince', null);
-	self.list.king     = new Card(6, 'King',     1, 'Trade Hands', null);
-	self.list.prince   = new Card(5, 'Prince',   2, 'One player discard his or her hand', null);
-	self.list.handmaid = new Card(4, 'Handmaid', 2, 'Protection unitl your next turn', null);
-	self.list.baron    = new Card(3, 'Baron',    2, 'Compare Hands: lower hand is out', null);
-	self.list.priest   = new Card(2, 'Priest',   2, 'Look at a hand', null);
-	self.list.guard    = new Card(1, 'Guard',    5, 'Guess a player\'s hand', null);
+	this.list = {};
+	this.list.princess = new Card(8, 'Princess', 1, 'Lose if discarded', this.constants.LOOSE_THE_GAME);
+	this.list.countess = new Card(7, 'Countess', 1, 'Discard if caught with King or Prince', null);
+	this.list.king     = new Card(6, 'King',     1, 'Trade Hands', null);
+	this.list.prince   = new Card(5, 'Prince',   2, 'One player discard his or her hand', null);
+	this.list.handmaid = new Card(4, 'Handmaid', 2, 'Protection unitl your next turn', null);
+	this.list.baron    = new Card(3, 'Baron',    2, 'Compare Hands: lower hand is out', null);
+	this.list.priest   = new Card(2, 'Priest',   2, 'Look at a hand', null);
+	this.list.guard    = new Card(1, 'Guard',    5, 'Guess a player\'s hand', null);
 
 	/**
 	 * Get card by NAME
@@ -102,9 +50,9 @@ var Cards = (function(utils)
 	 * @param name
 	 * @returns new Card()
 	 */
-	self.get = function(name)
+	this.get = function(name)
 	{
-		return self.list[name];
+		return this.list[name];
 	};
 
 	/**
@@ -113,11 +61,11 @@ var Cards = (function(utils)
 	 * @param cardId
 	 * @returns {*}
 	 */
-	self.getById = function(cardId)
+	this.getById = function(cardId)
 	{
-		for (var key in self.list) {
-			if (self.list[key].id == cardId) {
-				return self.list[key];
+		for (var key in this.list) {
+			if (this.list[key].id == cardId) {
+				return this.list[key];
 			}
 		}
 		return null;
@@ -126,14 +74,14 @@ var Cards = (function(utils)
 	/**
 	 * @type {Function}
 	 */
-	self.create = Card;
+	this.create = Card;
 
 	/**
 	 * Generate costume decks
 	 * @param {object} cards
 	 * @returns {Deck}
 	 */
-	self.generateDeck = function(cards)
+	this.generateDeck = function(cards)
 	{
 		var cardList = [];
 		for (var i in cards) {
@@ -149,13 +97,10 @@ var Cards = (function(utils)
 	 * Generate sample deck
 	 * @returns {*}
 	 */
-	self.generateDefaultDeck = function()
+	this.generateDefaultDeck = function()
 	{
-		return self.generateDeck(self.list);
+		return this.generateDeck(this.list);
 	};
 
-	return self;
-}(utils));
-
-// Node export
-exports.cards = Cards;
+	return this;
+}());
