@@ -4,18 +4,19 @@
  */
 exports.room = function(roomName)
 {
+	var userIdList = [];
+	var game = null;
+
 	this.name = roomName;
-	this.userIdList = [];
-	this.game = null;
 
 	/**
-	 * @param {User} user
+	 * @param {User} User
 	 * @returns {boolean}
 	 */
-	this.addUser = function(user)
+	this.addUser = function(User)
 	{
-		if (!this.isUserInRoom(user)) {
-			this.userIdList.push(user.id);
+		if (!this.isUserInRoom(User) && User.id) {
+			userIdList.push(User.id);
 			return true;
 		}
 		return false;
@@ -27,7 +28,7 @@ exports.room = function(roomName)
 	 */
 	this.isUserInRoom = function(user)
 	{
-		return this.userIdList.indexOf(user.id) >= 0;
+		return userIdList.indexOf(user.id) >= 0;
 	};
 
 	/**
@@ -35,9 +36,9 @@ exports.room = function(roomName)
 	 */
 	this.removeUser = function(user)
 	{
-		var index = this.userIdList.indexOf(user.id);
+		var index = userIdList.indexOf(user.id);
 		if (index > -1) {
-			this.userIdList.splice(index, 1);
+			userIdList.splice(index, 1);
 		}
 	};
 
@@ -47,7 +48,7 @@ exports.room = function(roomName)
 	 */
 	this.getUserIdList = function()
 	{
-		return this.userIdList;
+		return userIdList;
 	};
 
 	/**
@@ -55,7 +56,7 @@ exports.room = function(roomName)
 	 */
 	this.setGame = function(gameObject)
 	{
-		this.game = gameObject;
+		game = gameObject;
 	};
 
 	/**
@@ -63,6 +64,6 @@ exports.room = function(roomName)
 	 */
 	this.getGame = function()
 	{
-		return this.game;
+		return game;
 	};
 };
