@@ -7,14 +7,14 @@ exports.UserManager = function()
 	/**
 	 * The client list
 	 */
-	this.clientList = {};
+	var clientList = {};
 
 	/**
 	 * @param {User} user
 	 */
 	this.addUser = function(user)
 	{
-		this.clientList[user.id] = user;
+		clientList[user.id] = user;
 	};
 
 	/**
@@ -22,7 +22,7 @@ exports.UserManager = function()
 	 */
 	this.removeUser = function(user)
 	{
-		delete this.clientList[user.id];
+		delete clientList[user.id];
 	};
 
 	/**
@@ -31,7 +31,7 @@ exports.UserManager = function()
 	 */
 	this.getUser = function(userId)
 	{
-		return this.clientList[userId];
+		return clientList[userId];
 	};
 
 	/**
@@ -39,7 +39,7 @@ exports.UserManager = function()
 	 */
 	this.getList = function()
 	{
-		return this.clientList;
+		return clientList;
 	};
 
 	/**
@@ -47,7 +47,14 @@ exports.UserManager = function()
 	 */
 	this.count = function()
 	{
-		return this.getList().length;
+		var count = 0, key,
+			list = this.getList();
+		for (key in list) {
+			if (list.hasOwnProperty(key)) {
+				++count;
+			}
+		}
+		return count;
 	};
 
 	return this;
