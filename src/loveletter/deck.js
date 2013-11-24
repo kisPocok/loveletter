@@ -4,7 +4,7 @@
  * @returns {*}
  * @constructor
  */
-exports.Deck= function(cardList)
+exports.Deck = function(cardList)
 {
 	this.originalCards = cardList;
 	this.cards         = cardList;
