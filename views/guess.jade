@@ -11,8 +11,6 @@ block content
         div(class="modal-body")
           each card, i in cards
             p
-              if card.id == 1
-                // skipped
-              else
+              if card.id != 1
                 a(href="#" class="btn btn-lg btn-default" data-cardid=card.id)
                   |#{card.name}
