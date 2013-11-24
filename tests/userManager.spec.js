@@ -16,8 +16,8 @@ describe("Room Manager", function()
 
 	it("default user list", function()
 	{
-		expect({}).toEqual(userManager.getList());
-		expect(0).toBe(userManager.count());
+		expect(userManager.getList()).toEqual({});
+		expect(userManager.count()).toBe(0);
 	});
 
 	it("create a single user", function()
@@ -26,16 +26,16 @@ describe("Room Manager", function()
 		fakeList[userName] = user;
 
 		userManager.addUser(user);
-		expect(fakeList).toEqual(userManager.getList());
-		expect(user).toBe(userManager.getUser(userName));
-		expect(1).toBe(userManager.count());
+		expect(userManager.getList()).toEqual(fakeList);
+		expect(userManager.getUser(userName)).toBe(user);
+		expect(userManager.count()).toBe(1);
 	});
 
 	it("create then remove user", function()
 	{
 		userManager.addUser(user);
 		userManager.removeUser(user);
-		expect({}).toEqual(userManager.getList());
-		expect(0).toBe(userManager.count());
+		expect(userManager.getList()).toEqual({});
+		expect(userManager.count()).toBe(0);
 	});
 });

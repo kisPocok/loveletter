@@ -23,26 +23,26 @@ describe("Room", function()
 	it("add user to list", function()
 	{
 		room.addUser(user);
-		expect(false).toBe(room.isUserInRoom(socketId));
-		expect(true).toBe(room.isUserInRoom(user));
-		expect(1).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(socketId)).toBeFalsy();
+		expect(room.isUserInRoom(user)).toBeTruthy();
+		expect(room.getUserIdList().length).toBe(1);
 	});
 
 	it("add same, who is already being in the room", function()
 	{
 		room.addUser(user);
 		room.addUser(user);
-		expect(true).toBe(room.isUserInRoom(user));
-		expect(1).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(user)).toBeTruthy();
+		expect(room.getUserIdList().length).toBe(1);
 	});
 
 	it("add two different users", function()
 	{
 		room.addUser(user);
 		room.addUser(anotherUser);
-		expect(true).toBe(room.isUserInRoom(user));
-		expect(true).toBe(room.isUserInRoom(anotherUser));
-		expect(2).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(user)).toBeTruthy();
+		expect(room.isUserInRoom(anotherUser)).toBeTruthy();
+		expect(room.getUserIdList().length).toBe(2);
 	});
 
 	it("add two different users then remove one", function()
@@ -50,39 +50,39 @@ describe("Room", function()
 		room.addUser(user);
 		room.addUser(anotherUser);
 		room.removeUser(user);
-		expect(false).toBe(room.isUserInRoom(user));
-		expect(true).toBe(room.isUserInRoom(anotherUser));
-		expect(1).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(user)).toBeFalsy();
+		expect(room.isUserInRoom(anotherUser)).toBeTruthy();
+		expect(room.getUserIdList().length).toBe(1);
 	});
 
 	it("add user then remove non existing one from the room", function()
 	{
 		room.addUser(user);
 		room.removeUser(anotherUser);
-		expect(true).toBe(room.isUserInRoom(user));
-		expect(1).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(user)).toBeTruthy();
+		expect(room.getUserIdList().length).toBe(1);
 	});
 
 	it("add wrong user to room", function()
 	{
 		room.addUser(socketId);
-		expect(false).toBe(room.isUserInRoom(user));
-		expect(0).toBe(room.getUserIdList().length);
+		expect(room.isUserInRoom(user)).toBeFalsy();
+		expect(room.getUserIdList().length).toBe(0);
 	});
 
 	it("empty room has no user", function()
 	{
-		expect(0).toBe(room.getUserIdList().length);
+		expect(room.getUserIdList().length).toBe(0);
 	});
 
 	it("get empty Game Object from room", function()
 	{
-		expect(null).toBe(room.getGame());
+		expect(room.getGame()).toBeNull();
 	});
 
 	it("set Game Object to room", function()
 	{
 		room.setGame(gameObject);
-		expect(gameObject).toBe(room.getGame());
+		expect(room.getGame()).toBe(gameObject);
 	});
 });

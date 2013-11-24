@@ -14,8 +14,8 @@ describe("User", function()
 	it("default values", function()
 	{
 		expect(user.id).toBe(socketId);
-		expect(user.player).toBe(null);
-		expect(user.room).toBe(null);
+		expect(user.player).toBeNull();
+		expect(user.room).toBeNull();
 	});
 
 	it("update room with room class", function()

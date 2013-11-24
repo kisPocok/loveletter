@@ -14,11 +14,11 @@ describe("Room Manager", function()
 	it("create a single room", function()
 	{
 		var room = roomManager.createRoom(roomName);
-		expect(true).toBe(roomManager.isAvailableRoom(roomName));
+		expect(roomManager.isAvailableRoom(roomName)).toBeTruthy;
 		expect(room.name).toBe(roomName);
 		expect(room).toBe(roomManager.getRoom(roomName));
-		expect(1).toBe(roomManager.getRoomList().length);
-		expect([roomName]).toEqual(roomManager.getRoomList());
+		expect(roomManager.getRoomList().length).toBe(1);
+		expect(roomManager.getRoomList()).toEqual([roomName]);
 	});
 
 	it("create two rooms", function()
@@ -26,14 +26,14 @@ describe("Room Manager", function()
 		var room = roomManager.createRoom(roomName);
 		var room2 = roomManager.createRoom(anotherRoomName);
 
-		expect(true).toBe(roomManager.isAvailableRoom(roomName));
-		expect(true).toBe(roomManager.isAvailableRoom(anotherRoomName));
+		expect(roomManager.isAvailableRoom(roomName)).toBeTruthy();
+		expect(roomManager.isAvailableRoom(anotherRoomName)).toBeTruthy();
 
-		expect(room).toBe(roomManager.getRoom(roomName));
-		expect(room2).toBe(roomManager.getRoom(anotherRoomName));
+		expect(roomManager.getRoom(roomName)).toBe(room);
+		expect(roomManager.getRoom(anotherRoomName)).toBe(room2);
 
-		expect(2).toBe(roomManager.getRoomList().length);
-		expect([roomName, anotherRoomName]).toEqual(roomManager.getRoomList());
+		expect(roomManager.getRoomList().length).toBe(2);
+		expect(roomManager.getRoomList()).toEqual([roomName, anotherRoomName]);
 	});
 
 	it("create a single room, then create it again without force param", function()
@@ -41,7 +41,7 @@ describe("Room Manager", function()
 		var room = roomManager.createRoom(roomName);
 		room.addUser(user);
 		var room2 = roomManager.createRoom(roomName);
-		expect(true).toBe(room2.isUserInRoom(user));
+		expect(room2.isUserInRoom(user)).toBeTruthy();
 	});
 
 	it("create a single room, then force to re-create it", function()
@@ -49,6 +49,6 @@ describe("Room Manager", function()
 		var room = roomManager.createRoom(roomName);
 		room.addUser(user);
 		var room2 = roomManager.createRoom(roomName, true);
-		expect(false).toBe(room2.isUserInRoom(user));
+		expect(room2.isUserInRoom(user)).toBeFalsy();
 	});
 });
