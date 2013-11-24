@@ -240,6 +240,83 @@ describe("Game.isCardNeedPrompt", function() {
 	});
 });
 
+describe("Game.getTargetablePlayers", function()
+{
+	var p1, p2, onlyP1, onlyP2, noPlayer, p1p2;
+
+	beforeEach(function()
+	{
+		p1 = new Player(1, 'irrelevant');
+		p2 = new Player(2, 'irrelevant 2');
+		p3 = new Player(3, 'irrelevant 3');
+		App.reset();
+		App.addPlayer(p1);
+		App.addPlayer(p2);
+
+		noPlayer = [];
+		p1p2 = [p1, p2];
+		onlyP1 = [p1];
+		onlyP2 = [p2];
+	});
+
+	it("2 players cases", function()
+	{
+		expect(Game.getTargetablePlayers(princess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(countess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(king, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(prince, App)).toEqual(p1p2);
+		expect(Game.getTargetablePlayers(handmaid, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(baron, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(priest, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(guard, App)).toEqual(onlyP2);
+	});
+
+	it("2 players cases with protected opponents", function()
+	{
+		p2.setProtection(true);
+
+		expect(Game.getTargetablePlayers(princess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(countess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(king, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(prince, App)).toEqual(onlyP1);
+		expect(Game.getTargetablePlayers(handmaid, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(baron, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(priest, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(guard, App)).toEqual(noPlayer);
+	});
+
+	it("3 players cases with 1 protected opponents", function()
+	{
+		p3.setProtection(true);
+		App.addPlayer(p3);
+
+		expect(Game.getTargetablePlayers(princess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(countess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(king, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(prince, App)).toEqual(p1p2);
+		expect(Game.getTargetablePlayers(handmaid, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(baron, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(priest, App)).toEqual(onlyP2);
+		expect(Game.getTargetablePlayers(guard, App)).toEqual(onlyP2);
+	});
+
+	it("3 players cases with 2 protected opponents", function()
+	{
+		p2.setProtection(true);
+		p3.setProtection(true);
+		App.addPlayer(p3);
+
+		expect(Game.getTargetablePlayers(princess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(countess, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(king, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(prince, App)).toEqual(onlyP1);
+		expect(Game.getTargetablePlayers(handmaid, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(baron, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(priest, App)).toEqual(noPlayer);
+		expect(Game.getTargetablePlayers(guard, App)).toEqual(noPlayer);
+	});
+});
+
 describe("Game.isCardNeedTarget", function() {
 
 	beforeEach(function() {

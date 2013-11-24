@@ -182,7 +182,8 @@ var Game = (function(Cards)
 			case (2): // Look at a hand, fall-through
 			case (1): // Guess a player's hand, fall-through
 				// ha van legalább 1 ellenfél aki célozható
-				return !!self.getNumberOfPossibleTarget(appLogic.getOpponents());
+				var opponents = appLogic.getOpponents();
+				return !!self.getNumberOfPossibleTarget(opponents);
 			case (5): // One player discard his or her hand
 				// mindig van legalább egy (hiszen önmaga is célpont lehet) ezért mindig választania kell
 				// akkor is, ha nincs aktív ellenfél, hogy értse mi történik!
@@ -190,6 +191,32 @@ var Game = (function(Cards)
 			default:
 				return false;
 		}
+	};
+
+	/**
+	 * @param {Card} card
+	 * @param {App} appLogic
+	 * @returns {Array}
+	 */
+	self.getTargetablePlayers = function(card, appLogic)
+	{
+		var players = [];
+		if (!self.isCardNeedTarget(card, appLogic)) {
+			return players;
+		}
+
+		if (card.id == 5) {
+			// magát is választhatja ebben az esetben
+			players.push(appLogic.getActivePlayer());
+		}
+
+		var ops = appLogic.getOpponents(), p;
+		for (p in ops) {
+			if (!ops[p].isProtected()) {
+				players.push(ops[p]);
+			}
+		}
+		return players;
 	};
 
 	/**

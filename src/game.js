@@ -91,7 +91,8 @@ function playCard(params)
 		socketHelper.emitToUser(user, 'card.prompt', params);
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-		params.html = _getPlayerSelectorScreen(LoveLetter);
+		var targets = LoveLetter.getTargetablePlayers(card, LoveLetter);
+		params.html = _getPlayerSelectorScreen(targets);
 		socketHelper.emitToUser(user, 'card.target', params);
 
 	} else {
@@ -112,6 +113,7 @@ function playCard(params)
 				var response = player.attack(Game, card, targetPlayer, params);
 				eventHandler.emitToRoom(room, 'game.attack', response);
 				console.log('Game.attack!');
+				LoveLetter.nextPlayer();
 			} catch(er) {
 				console.log('Hiba történt a lap kijátszása közben:', er);
 			}
@@ -142,14 +144,24 @@ function disconnect(socket)
 	};
 }
 
-function _getPlayerSelectorScreen(LoveLetter)
+/**
+ * @param {Array} targetablePlayers
+ * @returns {String}
+ * @private
+ */
+function _getPlayerSelectorScreen(targetablePlayers)
 {
 	var params = {
-		'players': LoveLetter.getAllPlayers()
+		'players': targetablePlayers
 	};
 	return jade.renderFile('views/userSelect.jade', params);
 }
 
+/**
+ * @param LoveLetter
+ * @returns {String}
+ * @private
+ */
 function _getGuessScreen(LoveLetter)
 {
 	var params = {
