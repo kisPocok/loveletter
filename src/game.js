@@ -2,6 +2,7 @@ var SocketHelper = require('./socketHelper').SocketHelper;
 var RoomManager = require('./roomManager').RoomManager();
 var UserManager = require('./UserManager').UserManager();
 var User = require('./user').User;
+var jade = require('jade');
 
 var socketHelper, user;
 
@@ -85,14 +86,13 @@ function playCard(params)
 	}
 
 	var card = LoveLetter.getCards().getById(params.cardId);
-
 	if (Game.isCardNeedPrompt(card) && !params.guess) {
-		console.log('Card need prompt');
-		socketHelper.emitToCurrentUser('card.prompt', params);
+		params.html = getGuessHtml(LoveLetter);
+		socketHelper.emitToUser(user, 'card.prompt', params);
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-		console.log('Card need target');
-		socketHelper.emitToCurrentUser('card.target', params);
+		params.html = getPlayerSelector(LoveLetter);
+		socketHelper.emitToUser(user, 'card.target', params);
 
 	} else {
 		console.log('USER:', user.id);
@@ -120,6 +120,22 @@ function playCard(params)
 			console.log('Nem kijatszható a lap!');
 		}
 	}
+}
+
+function getPlayerSelector(LoveLetter)
+{
+	var params = {
+		'players': LoveLetter.getAllPlayers()
+	};
+	return jade.renderFile('views/userSelect.jade', params);
+}
+
+function getGuessHtml(LoveLetter)
+{
+	var params = {
+		'cards': LoveLetter.getCards().list
+	};
+	return jade.renderFile('views/guess.jade', params);
 }
 
 function disconnect(socket)

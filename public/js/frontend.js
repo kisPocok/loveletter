@@ -11,6 +11,8 @@ var GamePlay = new (function GamePlay()
 	this.opponents = [];
 	this.deckCount = 0;
 
+	var gamePlay = $("#gameplay");
+
 	/**
 	 * @param {object} data
 	 */
@@ -35,7 +37,7 @@ var GamePlay = new (function GamePlay()
 			return parseInt(guess);
 		}
 		return 0;
-	}
+	};
 
 	/**
 	 * @param {int} playersCount
@@ -56,8 +58,6 @@ var GamePlay = new (function GamePlay()
 
 	this.renderGamePlay = function()
 	{
-		var gamePlay = $("#gameplay");
-
 		var currentPlayerHtml = createPlayerGameplay(
 			this.currentPlayer.name, this.currentPlayer.cardsInHand
 		);
@@ -82,6 +82,11 @@ var GamePlay = new (function GamePlay()
 		});
 	};
 
+	this.reset = function()
+	{
+		gamePlay.html('');
+	}
+
 	/**
 	 * @param {string} name
 	 * @param {array} cards
@@ -92,10 +97,15 @@ var GamePlay = new (function GamePlay()
 		var i, card, cardsHtml = '';
 		for (i in cards) {
 			card = cards[i];
-			cardsHtml += '<a class="card card' + card.id + '" data-cardid="' + card.id + '">';
-			cardsHtml += card.name;
-			cardsHtml += '(' + card.id + ')</a>';
-			cardsHtml += '<br />';
+			cardsHtml += '<a href="#" ' +
+				' class="btn btn-lg btn-primary card card' + card.id + '" ' +
+				' data-cardid="' + card.id + '"' +
+				//' data-toggle="popover"' +
+				//' role="button"' +
+				//' data-original-title="Select your target"' +
+				//' data-content="Player 1 || Player 2"' +
+				'>' + card.name + ' (' + card.id + ')' +
+				'</a> ';
 		}
 		return '<!-- player\'s spot -->' +
 			'<div id="yourself">' +
@@ -104,6 +114,19 @@ var GamePlay = new (function GamePlay()
 					cardsHtml +
 				'</div>' +
 			'</div>';
+	};
+
+	var createTargetSelector = function(yourselfIsEnabled, protectedPlayers)
+	{
+		var html = '<div class="popover bottom">' +
+			'<div class="arrow"></div>' +
+			'<h3 class="popover-title">Select target player</h3>' +
+			'<div class="popover-content">' +
+				'<p><img src="#" alt="Yourself" class="img-circle"></p>' +
+			'</div>' +
+		'</div>';
+
+		return html;
 	};
 
 	/**
@@ -125,7 +148,6 @@ var GamePlay = new (function GamePlay()
 				'</div>' +
 			'</div>';
 	};
-
 });
 
 socket.on('handshake', handshake);
@@ -135,8 +157,9 @@ socket.on('player.draw', getUpdates);
 socket.on('game.start', getUpdates);
 socket.on('game.attack', getUpdates);
 socket.on('game.update', update);
-socket.on('card.prompt', cardPrompt);
+socket.on('card.prompt', cardGuess);
 socket.on('card.target', cardTarget);
+socket.on('game.reset', gameReset);
 
 function handshake(response) {
 	//console.log('Handshake', response.userId);
@@ -154,14 +177,37 @@ function update(response) {
 	GamePlay.update(response);
 	GamePlay.renderGamePlay();
 }
-function cardPrompt(params) {
-	params.guess = GamePlay.prompt();
-	socket.emit('game.playCard', params);
+function cardGuess(params) {
+	var container = $('#guess');
+	container.html(params.html);
+	container.find('.btn').click(function(event) {
+		params.guess = $(event.target).data('cardid');
+		delete params.html;
+		socket.emit('game.playCard', params);
+		container.children('div').modal('hide');
+	});
+	container.children('div').modal('show');
 }
 function cardTarget(params) {
-	params.target = GamePlay.opponents[0].name; // TODO ide user választó kell. Figyelj majd arra, hogy név alapján megy az azonosítás!
-	socket.emit('game.playCard', params);
+	var container = $('#target');
+	container.html(params.html);
+	container.find('.btn').click(function(event) {
+		params.target = $(event.target).data('userid');
+		delete params.html;
+		socket.emit('game.playCard', params);
+		container.children('div').modal('hide');
+	});
+	container.children('div').modal('show');
 }
+function gameReset() {
+	GamePlay.reset();
+}
+
+
+
+
+
+
 
 var unimplementedEvents = [
 	'game.playCountress',
@@ -177,7 +223,6 @@ var unimplementedEvents = [
 	'game.guess.failed',
 	'game.loose',
 	'game.nextPlayer',
-	'game.reset',
 	'game.end',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
