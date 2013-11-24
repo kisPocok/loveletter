@@ -2,6 +2,8 @@ var SocketHelper = require('../src/SocketHelper').SocketHelper;
 
 describe("Socket Helper", function()
 {
+	var userName, roomName, anotherRoomName, eventName, eventParams, toMock, broadcastMock, socketMock, socketHelper;
+
 	beforeEach(function()
 	{
 		userName = 'default-user';

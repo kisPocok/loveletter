@@ -3,6 +3,8 @@ var User = require('../src/user').User,
 
 describe("User", function()
 {
+	var roomName, socketId, user, room;
+
 	beforeEach(function()
 	{
 		roomName = 'default-room';

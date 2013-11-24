@@ -1,10 +1,10 @@
 var UserManager = require('../src/userManager').UserManager,
 	User = require('../src/user').User;
 
-var userName, anotherUserName, userManager, user, anotherUser;
-
 describe("Room Manager", function()
 {
+	var userName, anotherUserName, userManager, user, anotherUser;
+
 	beforeEach(function()
 	{
 		userName = 'default-socketId';

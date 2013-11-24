@@ -3,6 +3,8 @@ var Room = require('../src/room').room,
 
 describe("Room", function()
 {
+	var roomName, socketId, user, anotherUser, room, gameObject;
+
 	beforeEach(function()
 	{
 		roomName = 'default-room-name';
