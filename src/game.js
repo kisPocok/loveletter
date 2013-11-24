@@ -87,11 +87,11 @@ function playCard(params)
 
 	var card = LoveLetter.getCards().getById(params.cardId);
 	if (Game.isCardNeedPrompt(card) && !params.guess) {
-		params.html = getGuessHtml(LoveLetter);
+		params.html = _getGuessScreen(LoveLetter);
 		socketHelper.emitToUser(user, 'card.prompt', params);
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-		params.html = getPlayerSelector(LoveLetter);
+		params.html = _getPlayerSelectorScreen(LoveLetter);
 		socketHelper.emitToUser(user, 'card.target', params);
 
 	} else {
@@ -122,22 +122,6 @@ function playCard(params)
 	}
 }
 
-function getPlayerSelector(LoveLetter)
-{
-	var params = {
-		'players': LoveLetter.getAllPlayers()
-	};
-	return jade.renderFile('views/userSelect.jade', params);
-}
-
-function getGuessHtml(LoveLetter)
-{
-	var params = {
-		'cards': LoveLetter.getCards().list
-	};
-	return jade.renderFile('views/guess.jade', params);
-}
-
 function disconnect(socket)
 {
 	return function()
@@ -156,4 +140,20 @@ function disconnect(socket)
 			}
 		}
 	};
+}
+
+function _getPlayerSelectorScreen(LoveLetter)
+{
+	var params = {
+		'players': LoveLetter.getAllPlayers()
+	};
+	return jade.renderFile('views/userSelect.jade', params);
+}
+
+function _getGuessScreen(LoveLetter)
+{
+	var params = {
+		'cards': LoveLetter.getCards().list
+	};
+	return jade.renderFile('views/guess.jade', params);
 }
