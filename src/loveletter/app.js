@@ -4,14 +4,13 @@
  */
 exports.App = function(eventHandler, room)
 {
-	var Utils  = require('./utils').utils;
+	//var Utils  = require('./utils').utils;
 	var Game   = require('./game').game;
 	var Cards  = require('./cards').cards;
 	var Player = require('./player').player;
-	var Events = require('./events').events;
+	//var Events = require('./events').events;
 
 	var roomName = room.name || room;
-
 	var gameStarted, activePlayerId, players, deck;
 
 	/**
@@ -257,8 +256,6 @@ exports.App = function(eventHandler, room)
 
 	/**
 	 * First time must be return true
-	 *
-	 * @returns {boolean}
 	 */
 	this.startGame = function()
 	{

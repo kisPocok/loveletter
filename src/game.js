@@ -112,7 +112,6 @@ function playCard(params)
 				}
 				var response = player.attack(Game, card, targetPlayer, params);
 				eventHandler.emitToRoom(room, 'game.attack', response);
-				console.log('Game.attack!');
 				LoveLetter.nextPlayer();
 			} catch(er) {
 				console.log('Hiba történt a lap kijátszása közben:', er);
