@@ -166,6 +166,19 @@ exports.App = function(eventHandler, room)
 	};
 
 	/**
+	 * Get non protected opponents
+	 *
+	 * @returns {Array}
+	 */
+	this.getNonProtectedOpponents = function()
+	{
+		var op = this.getOpponents();
+		return op.filter(function(opponent) {
+			return !opponent.isProtected();
+		});
+	};
+
+	/**
 	 * TODO nem biztos, hogy kell, lehet jól megy a getOpponents is
 	 *
 	 * @param {User|string} user

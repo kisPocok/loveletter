@@ -665,16 +665,25 @@ describe("is playable card", function() {
 	});
 });
 
-describe("AppLogic", function() {
-	beforeEach(function() {
+describe("AppLogic", function()
+{
+	var p1, p2, p3, onlyP2, p2p3;
+
+	beforeEach(function()
+	{
 		p1 = new Player(1, 'irrelevant');
 		p2 = new Player(2, 'irrelevant 2');
+		p3 = new Player(3, 'irrelevant 3');
 		App.reset();
 		App.addPlayer(p1);
 		App.addPlayer(p2);
+
+		onlyP2 = [p2];
+		p2p3 = [p2, p3];
 	});
 
-	it("getOpponent with 2 players", function() {
+	it("getOpponent with 2 players", function()
+	{
 		expect(App.getAllPlayers().length).toBe(2);
 		expect(App.getActivePlayer()).toBe(p1);
 		expect(App.getNumberOfPlayers()).toBe(2);
@@ -682,7 +691,8 @@ describe("AppLogic", function() {
 		expect(App.getOpponents()[0]).toBe(p2);
 	});
 
-	it("getOpponents with 3+ players", function() {
+	it("getOpponents with 3+ players", function()
+	{
 		p3 = new Player(3, 'irrelevant 3');
 		App.addPlayer(p3);
 		expect(App.getAllPlayers().length).toBe(3);
@@ -691,9 +701,35 @@ describe("AppLogic", function() {
 		expect(App.getOpponents()[0]).toBe(p2);
 	});
 
-	it("getOpponent got error over 2 players", function() {
-		p3 = new Player(3, 'irrelevant 3');
+	it("getOpponent got error over 2 players", function()
+	{
 		App.addPlayer(p3);
 		expect(App.getOpponent.bind({})).toThrow();
+	});
+
+	it("getNonProtectedOpponent with 2 players", function()
+	{
+		expect(App.getNonProtectedOpponents()).toEqual(onlyP2);
+	});
+
+	it("getNonProtectedOpponent with 3 players", function()
+	{
+		App.addPlayer(p3);
+		expect(App.getNonProtectedOpponents()).toEqual(p2p3);
+	});
+
+	it("getNonProtectedOpponent with 3 players (1 protected)", function()
+	{
+		p3.setProtection(true);
+		App.addPlayer(p3);
+		expect(App.getNonProtectedOpponents()).toEqual(onlyP2);
+	});
+
+	it("getNonProtectedOpponent with 3 players (2 protected)", function()
+	{
+		p2.setProtection(true);
+		p3.setProtection(true);
+		App.addPlayer(p3);
+		expect(App.getNonProtectedOpponents()).toEqual([]);
 	});
 });

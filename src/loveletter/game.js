@@ -210,13 +210,7 @@ var Game = (function(Cards)
 			players.push(appLogic.getActivePlayer());
 		}
 
-		var ops = appLogic.getOpponents(), p;
-		for (p in ops) {
-			if (!ops[p].isProtected()) {
-				players.push(ops[p]);
-			}
-		}
-		return players;
+		return players.concat(appLogic.getNonProtectedOpponents());
 	};
 
 	/**
