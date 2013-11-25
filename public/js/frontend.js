@@ -154,9 +154,9 @@ var GamePlay = new (function GamePlay()
 socket.on('handshake', handshake);
 socket.on('room.playerJoined', renderQueue);
 socket.on('room.playerLeft', renderQueue);
-socket.on('player.draw', getUpdates);
-socket.on('game.start', getUpdates);
-socket.on('game.attack', getUpdates);
+socket.on('player.draw', getUpdates('draw'));
+socket.on('game.start', getUpdates('start'));
+socket.on('game.attack', getUpdates('attack'));
 socket.on('game.update', update);
 socket.on('card.prompt', cardGuess);
 socket.on('card.target', cardTarget);
@@ -170,8 +170,11 @@ function handshake(response) {
 function renderQueue(response) {
 	GamePlay.renderGameQueue(response.playerCount);
 }
-function getUpdates() {
-	socket.emit('game.getUpdates', {userId: user.id});
+function getUpdates(plan) {
+	return function() {
+		console.log('Update because', plan);
+		socket.emit('game.getUpdates', {userId: user.id});
+	}
 }
 function update(response) {
 	if (JSON.stringify(response) == JSON.stringify(lastState)) {
