@@ -1,6 +1,7 @@
 
 var user = {};
 var game = null;
+var lastState = null;
 var socket = io.connect('http://127.0.0.1:3000');
 
 var GamePlay = new (function GamePlay()
@@ -173,7 +174,10 @@ function getUpdates() {
 	socket.emit('game.getUpdates', {userId: user.id});
 }
 function update(response) {
-	console.log('Update the gameplay', response);
+	if (JSON.stringify(response) == JSON.stringify(lastState)) {
+		return;
+	}
+	lastState = response;
 	GamePlay.update(response);
 	GamePlay.renderGamePlay();
 }
