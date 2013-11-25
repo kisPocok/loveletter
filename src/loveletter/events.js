@@ -1,6 +1,9 @@
 var nodeEvents = require('events');
 
-var Events = (function(nodeEvents)
+/**
+ * @deprecated
+ */
+exports.events = (function(nodeEvents)
 {
 	var self = {};
 	var eventEmitter = new nodeEvents.EventEmitter();
@@ -29,23 +32,6 @@ var Events = (function(nodeEvents)
 	{
 		console.log('@deprecated EVENTS.FIRE:', eventName, eventParams);
 		return null;
-
-		try {
-			if (!self.enabled) {
-				return null;
-			}
-			console.log('srv.events.fire:', eventName, eventParams ? ':: ' + typeof eventParams : '');
-
-			eventEmitter.emit(eventName, eventParams||{});
-			if (self.socketIO) {
-				return self.socketIO.emit(eventName, eventParams||{});
-			}
-		} catch (er) {
-			console.error('Events.fire FAILED', er);
-			return false;
-		}
-
-		return true;
 	};
 
 	/**
@@ -88,6 +74,3 @@ var Events = (function(nodeEvents)
 
 	return self;
 }(nodeEvents));
-
-// Node export
-exports.events = Events;
