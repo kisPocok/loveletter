@@ -91,7 +91,7 @@ function playCard(params)
 		socketHelper.emitToUser(user, 'card.prompt', params);
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-		var targets = LoveLetter.getTargetablePlayers(card, LoveLetter);
+		var targets = Game.getTargetablePlayers(card, LoveLetter);
 		params.html = _getPlayerSelectorScreen(targets);
 		socketHelper.emitToUser(user, 'card.target', params);
 
