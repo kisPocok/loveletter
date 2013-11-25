@@ -1,6 +1,5 @@
 
 var user = {};
-var game = null;
 var lastState = null;
 var socket = io.connect('http://127.0.0.1:3000');
 
@@ -155,12 +154,15 @@ socket.on('handshake', handshake);
 socket.on('room.playerJoined', renderQueue);
 socket.on('room.playerLeft', renderQueue);
 socket.on('player.draw', getUpdates('draw'));
+socket.on('player.loose', looseTheGame);
 socket.on('game.start', getUpdates('start'));
 socket.on('game.attack', getUpdates('attack'));
 socket.on('game.update', update);
+socket.on('game.reset', gameReset);
+socket.on('game.playerLoose', getUpdates('playerLoose'));
+socket.on('game.end', gameEnded);
 socket.on('card.prompt', cardGuess);
 socket.on('card.target', cardTarget);
-socket.on('game.reset', gameReset);
 
 function handshake(response) {
 	//console.log('Handshake', response.userId);
@@ -209,7 +211,14 @@ function cardTarget(params) {
 function gameReset() {
 	GamePlay.reset();
 }
-
+function looseTheGame() {
+	console.warn('YOU LOST :(');
+}
+function gameEnded(params) {
+	if (user.id == params.winnerPlayer.id) {
+		console.warn('YOU WON THE GAME :)');
+	}
+}
 
 
 
@@ -228,9 +237,7 @@ var unimplementedEvents = [
 	'game.peek',
 	'game.guess.success',
 	'game.guess.failed',
-	'game.loose',
 	'game.nextPlayer',
-	'game.end',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
 	socket.on(eventName, function(response) {

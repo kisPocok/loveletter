@@ -89,9 +89,17 @@ exports.App = function(eventHandler, room)
 		}
 
 		players.push(player);
-		// TODO kell-e?
-		// eventHandler.emitToRoom(roomName, 'game.newPlayer', player);
 		return true;
+	};
+
+	/**
+	 * @param {Player} player
+	 */
+	this.removePlayer = function(player)
+	{
+		players = players.filter(function(playerInList) {
+			return playerInList.id !== player.id;
+		});
 	};
 
 	/**
@@ -105,7 +113,7 @@ exports.App = function(eventHandler, room)
 		if (activePlayerId >= players.length) {
 			activePlayerId = 0;
 		}
-		var player = this.getActivePlayer()
+		var player = this.getActivePlayer();
 		Game.nextTurnForPlayer(player, this.getDeck());
 		eventHandler.emitToRoom(roomName, 'game.nextPlayer', player);
 		return player;
@@ -130,7 +138,6 @@ exports.App = function(eventHandler, room)
 	this.getPlayer = function(user)
 	{
 		var userId = user.id || user;
-		var players = this.getAllPlayers();
 		return players.filter(function(player) {
 			return player.id === userId;
 		})[0];
@@ -193,13 +200,15 @@ exports.App = function(eventHandler, room)
 	};
 
 	/**
-	 * Get all player
+	 * Get all (non looser) player
 	 *
 	 * @returns {Array}
 	 */
 	this.getAllPlayers = function()
 	{
-		return players;
+		return players.filter(function(player) {
+			return player.lost === false
+		});
 	};
 
 	/**
@@ -209,7 +218,7 @@ exports.App = function(eventHandler, room)
 	 */
 	this.getNumberOfPlayers = function()
 	{
-		return players.length;
+		return this.getAllPlayers().length;
 	};
 
 	/**
@@ -301,17 +310,31 @@ exports.App = function(eventHandler, room)
 	};
 
 	/**
+	 * @returns {boolean}
+	 */
+	this.isGameEnded = function()
+	{
+		// TODO kártya pakli vizsgálata, ha elfogyott akkor is vége van!
+		return this.getNumberOfPlayers() <= 1;
+	};
+
+	/**
 	 * End of the Game
 	 */
 	this.endGame = function()
 	{
+		var winner = this.getAllPlayers()[0];
+
 		for (var i in players) {
 			players[i].cleanUp();
 		}
 		this.getDeck().renew();
 		gameStarted = false;
-		// TODO winner player-t kiválasztani és visszaadni
-		eventHandler.emitToRoom(roomName, 'game.end');
+
+		var params = {
+			'winnerPlayer': winner
+		};
+		eventHandler.emitToRoom(roomName, 'game.end', params);
 	};
 
 	/**

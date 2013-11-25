@@ -122,8 +122,18 @@ function playCard(params)
 					params.deck = LoveLetter.getDeck();
 				}
 				var response = player.attack(Game, card, targetPlayer, params);
-				eventHandler.emitToRoom(room, 'game.attack', response);
-				LoveLetter.nextPlayer();
+				var somebodyLost = Game.handleAttackingSituation(LoveLetter, player, targetPlayer, response.eventName);
+
+				//var emitParams = {'response': response.response};
+				//eventHandler.emitToRoom(room, response.eventName, emitParams);
+
+				if (LoveLetter.isGameEnded()) {
+					console.log('GAME ENDED!');
+					LoveLetter.endGame();
+				} else {
+					LoveLetter.nextPlayer();
+				}
+				//eventHandler.emitToRoom(room, 'game.attack', response);
 			} catch(er) {
 				console.log('Hiba történt a lap kijátszása közben:', er);
 			}

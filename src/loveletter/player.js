@@ -13,6 +13,7 @@ function Player(id, name) {
 	this.name        = name;
 	this.cardsInHand = [];
 	this.wins        = 0;
+	this.lost        = false;
 	this.protection  = false;
 	this.roomName    = null;
 	eventHandler     = null;
@@ -26,7 +27,7 @@ function Player(id, name) {
 	*/
 
 	/**
-	 * @param {socketHandler} eventHandler
+	 * @param {eventHandler} eventHandlerParam
 	 * @param {Room|string} room
 	 */
 	this.setEventHandlerAndRoom = function(eventHandlerParam, room)
@@ -68,7 +69,7 @@ function Player(id, name) {
 	/**
 	 * Resolve 'attack' action
 	 *
-	 * @param {Game}   gameLogic    outsourced for debug mock
+	 * @param {Game}   gameLogic
 	 * @param {Card}   withCard     using this card
 	 * @param {Player} targetPlayer targeted player
 	 * @param {object} params       optional parameters
@@ -76,77 +77,72 @@ function Player(id, name) {
 	 */
 	this.attack = function(gameLogic, withCard, targetPlayer, params)
 	{
+		var cardResponse, eventName;
+
 		this.removeCard(withCard);
-		var response;
 
 		switch (withCard.id) {
 			case (8): // Princess
-				// You can't!
-				throw new Error('Card not allowed to play!');
+				throw 'Card not allowed to play!'; // You just can't!
+
 			case (7): // Countess
-				response = gameLogic.playCountess(this);
-				eventHandler.emitToRoom(this.roomName, 'game.playCountress');
+				cardResponse = gameLogic.playCountess(this);
+				eventName = 'game.playCountress';
 				break;
+
 			case (6): // King
-				response = gameLogic.trade(this, targetPlayer);
-				eventHandler.emitToRoom(this.roomName, 'game.trade');
+				cardResponse = gameLogic.trade(this, targetPlayer);
+				eventName = 'game.trade';
 				break;
+
 			case (5): // Prince
-				response = gameLogic.discard(targetPlayer, params.deck);
-				if (response && response.id === 8) {
-					// princess
-					eventHandler.emitToRoom(this.roomName, 'game.discard.win');
-					targetPlayer.loose(gameLogic);
-				} else {
-					eventHandler.emitToRoom(this.roomName, 'game.discard');
-				}
+				cardResponse = gameLogic.discard(targetPlayer, params.deck);
+				eventName = (cardResponse && cardResponse.id === 8) ? 'game.discard.win' : 'game.discard';
 				break;
+
 			case (4): // Handmaid
-				response = gameLogic.protect(this);
-				eventHandler.emitToRoom(this.roomName, 'game.protect');
+				cardResponse = gameLogic.protect(this);
+				eventName = 'game.protect';
 				break;
+
 			case (3): // Baron
-				response = gameLogic.fight(this.getTheCard(), targetPlayer.getTheCard());
-				if (response === true) {
-					eventHandler.emitToRoom(this.roomName, 'game.fight.win');
-					targetPlayer.loose(gameLogic);
-				} else if (response === false) {
-					eventHandler.emitToRoom(this.roomName, 'game.fight.loose');
-					this.loose(gameLogic);
+				cardResponse = gameLogic.fight(this.getTheCard(), targetPlayer.getTheCard());
+				if (cardResponse === true) {
+					eventName = 'game.fight.win';
+				} else if (cardResponse === false) {
+					eventName = 'game.fight.loose';
 				} else {
-					eventHandler.emitToRoom(this.roomName, 'game.fight.equal');
+					eventName = 'game.fight.equal';
 				}
 				break;
+
 			case (2): // Priest
-				response = gameLogic.peek(targetPlayer);
-				if (response) {
-					var eventParams = {
-						player: this,
-						targetPlayer: targetPlayer
-					};
-					eventHandler.emitToRoom(this.roomName, 'game.peek', eventParams);
-				}
+				cardResponse = gameLogic.peek(targetPlayer);
+				eventName = 'game.peek';
 				break;
+
 			case (1): // Guard
-				response = gameLogic.guess(params.guess, targetPlayer ? targetPlayer.getTheCard() : null);
-				if (response) {
-					eventHandler.emitToRoom(this.roomName, 'game.guess.success');
-					targetPlayer.loose(gameLogic);
-				} else {
-					eventHandler.emitToRoom(this.roomName, 'game.guess.failed');
-				}
+				cardResponse = gameLogic.guess(params.guess, targetPlayer ? targetPlayer.getTheCard() : null);
+				eventName = cardResponse ? 'game.guess.success' : 'game.guess.failed';
 				break;
+
 			default:
 				throw new Error('Card Not Found');
 		}
 
 		return {
-			player:   this,
-			card:     withCard,
-			target:   targetPlayer,
-			params:   params,
-			response: response
+			player: this,
+			target: targetPlayer,
+			params: params,
+			card: withCard,
+			response: cardResponse,
+			eventName: eventName
 		};
+	};
+
+	this.clearHand = function()
+	{
+		this.cardsInHand = [];
 	};
 
 	return this;
@@ -256,23 +252,18 @@ Player.prototype.win = function()
 /**
  * Player loose the game (fall out from the game)
  */
-Player.prototype.loose = function(gameLogic)
+Player.prototype.loose = function(appLogic)
 {
-	var newPlayers = [];
-	for (var i in gameLogic.players) {
-		var aPlayer = gameLogic.players[i];
-		if (aPlayer.id != this.id) {
-			newPlayers.push(aPlayer);
-		}
-	}
-	gameLogic.players = newPlayers;
+	this.lost = true;
+	this.clearHand();
 
-	var params = {
-		player:  this,
-		players: newPlayers
-	};
 	if (Events.enabled) {
-		eventHandler.emitToRoom(this.roomName, 'player.loose', params);
+		var params = {
+			player: this,
+			players: appLogic.getAllPlayers()
+		};
+		eventHandler.emitToUser(this.id, 'player.loose', null);
+		eventHandler.emitToRoom(this.roomName, 'game.playerLoose', params);
 	}
 };
 
@@ -281,6 +272,7 @@ Player.prototype.loose = function(gameLogic)
  */
 Player.prototype.setDefault = function()
 {
+	this.lost = false;
 	this.setProtection(false);
 };
 
@@ -289,7 +281,7 @@ Player.prototype.setDefault = function()
  */
 Player.prototype.cleanUp = function()
 {
-	this.cardsInHand = [];
+	this.clearHand();
 	this.setDefault();
 };
 

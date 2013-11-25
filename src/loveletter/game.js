@@ -249,6 +249,29 @@ var Game = (function(Cards)
 	 */
 	self.playCountess = function(player)
 	{
+		// TODO
+		return true;
+	};
+
+	/**
+	 * @param {App} appLogic
+	 * @param {Player} attackingPlayer
+	 * @param {Player} targetPlayer
+	 * @param {String} eventName
+	 * @return {Player|boolean}
+	 */
+	self.handleAttackingSituation = function(appLogic, attackingPlayer, targetPlayer, eventName)
+	{
+		if (eventName === 'game.fight.win' || eventName === 'game.guess.success' || eventName === 'game.discard.win') {
+			targetPlayer.loose(appLogic);
+			return targetPlayer;
+		}
+
+		if (eventName === 'game.fight.loose') {
+			attackingPlayer.loose(appLogic);
+			return attackingPlayer;
+		}
+
 		return false;
 	};
 
