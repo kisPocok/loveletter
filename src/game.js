@@ -4,7 +4,7 @@ var UserManager = require('./UserManager').UserManager();
 var User = require('./user').User;
 var jade = require('jade');
 
-var socketHelper, user;
+var socketHelper, user, devMode = (process.env.DEV == 1);
 
 /**
  * @type {function}
@@ -59,7 +59,18 @@ function startTheGame(params)
 		return;
 	}
 	LoveLetter.createGame(userList);
-	LoveLetter.startGame();
+	if (devMode) {
+		// For science!
+		var cards = LoveLetter.getCards().list;
+		LoveLetter.startDevGame(
+			cards.guard,
+			cards.baron,
+			cards.handmaid
+		);
+	} else {
+		// Normal start
+		LoveLetter.startGame();
+	}
 	room.setGame(LoveLetter);
 }
 

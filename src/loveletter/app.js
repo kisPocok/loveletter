@@ -260,8 +260,7 @@ exports.App = function(eventHandler, room)
 	this.startGame = function()
 	{
 		if (this.isGameAlreadyStarted()) {
-			// TODO FIXME for debug NOW
-			// return;
+			return;
 		}
 		gameStarted = true;
 
@@ -279,6 +278,25 @@ exports.App = function(eventHandler, room)
 
 		var activePlayer = this.getActivePlayer();
 		Game.nextTurnForPlayer(activePlayer, this.getDeck());
+		eventHandler.emitToRoom(roomName, 'game.start');
+	};
+
+	/**
+	 * First time must be return true
+	 */
+	this.startDevGame = function(p1Card1, p1Card2, p2Card)
+	{
+		gameStarted = true;
+		deck.shuffle();
+		var players = this.getAllPlayers();
+		var p1 = players[0];
+		var p2 = players[1];
+
+		p1.setProtection(false);
+		p1.cardsInHand.push(p1Card1);
+		p1.cardsInHand.push(p1Card2);
+		p2.cardsInHand.push(p2Card);
+
 		eventHandler.emitToRoom(roomName, 'game.start');
 	};
 
