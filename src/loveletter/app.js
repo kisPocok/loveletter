@@ -109,14 +109,27 @@ exports.App = function(eventHandler, room)
 	 */
 	this.nextPlayer = function()
 	{
-		++activePlayerId;
-		if (activePlayerId >= players.length) {
-			activePlayerId = 0;
-		}
+		activePlayerId = getNextActivePlayerId(activePlayerId);
 		var player = this.getActivePlayer();
 		Game.nextTurnForPlayer(player, this.getDeck());
 		eventHandler.emitToRoom(roomName, 'game.nextPlayer', player);
 		return player;
+	};
+
+	/**
+	 * @param {int} activePlayerId
+	 * @returns {int}
+	 */
+	var getNextActivePlayerId = function(activePlayerId)
+	{
+		var active = activePlayerId + 1;
+		if (active >= players.length) {
+			active = 0;
+		}
+		if (players[active].lost) {
+			return getNextActivePlayerId(active);
+		}
+		return active;
 	};
 
 	/**
