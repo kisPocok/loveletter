@@ -123,6 +123,7 @@ function Player(id, name) {
 
 			case (1): // Guard
 				cardResponse = gameLogic.guess(params.guess, targetPlayer ? targetPlayer.getTheCard() : null);
+				params.guessCard = Cards.getById(params.guess);
 				eventName = cardResponse ? 'game.guess.success' : 'game.guess.failed';
 				break;
 
@@ -131,8 +132,6 @@ function Player(id, name) {
 		}
 
 		return {
-			player: this,
-			target: targetPlayer,
 			params: params,
 			card: withCard,
 			response: cardResponse,

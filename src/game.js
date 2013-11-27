@@ -124,8 +124,12 @@ function playCard(params)
 				var response = player.attack(Game, card, targetPlayer, params);
 				var somebodyLost = Game.handleAttackingSituation(LoveLetter, player, targetPlayer, response.eventName);
 
-				//var emitParams = {'response': response.response};
-				//eventHandler.emitToRoom(room, response.eventName, emitParams);
+				var emitParams = {
+					'player': player.getPublicInfo(),
+					'response': response,
+					'targetPlayer': targetPlayer.getPublicInfo()
+				};
+				eventHandler.emitToRoom(room, response.eventName, emitParams);
 
 				if (LoveLetter.isGameEnded()) {
 					console.log('GAME ENDED!');
@@ -133,7 +137,6 @@ function playCard(params)
 				} else {
 					LoveLetter.nextPlayer();
 				}
-				//eventHandler.emitToRoom(room, 'game.attack', response);
 			} catch(er) {
 				console.log('Hiba történt a lap kijátszása közben:', er);
 			}
