@@ -306,6 +306,14 @@ exports.App = function(eventHandler, room)
 		p1.cardsInHand.push(p1Card2);
 		p2.cardsInHand.push(p2Card);
 
+		if (players.length > 2) {
+			for (var p in players) {
+				if (p > 1) {
+					players[p].draw(this.getDeck(), true);
+				}
+			}
+		}
+
 		eventHandler.emitToRoom(roomName, 'game.start');
 	};
 
