@@ -1,4 +1,4 @@
-var SocketHelper = require('../src/SocketHelper').SocketHelper;
+var SocketHelper = require('../src/socketHelper').SocketHelper;
 
 describe("Socket Helper", function()
 {
