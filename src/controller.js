@@ -1,6 +1,6 @@
 var SocketHelper = require('./socketHelper').SocketHelper;
 var RoomManager = require('./roomManager').RoomManager();
-var UserManager = require('./UserManager').UserManager();
+var UserManager = require('./userManager').UserManager();
 var Toaster = require('./toast').Toast();
 var Screen = require('./screen').Screen();
 var User = require('./user').User;
