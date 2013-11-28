@@ -1,6 +1,7 @@
 var SocketHelper = require('./socketHelper').SocketHelper;
 var RoomManager = require('./roomManager').RoomManager();
 var UserManager = require('./UserManager').UserManager();
+var Toaster = require('./toast').Toast();
 var User = require('./user').User;
 var jade = require('jade');
 
@@ -125,17 +126,25 @@ function playCard(params)
 					'targetPlayer': targetPlayer.getPublicInfo(),
 				};
 
-				if (card.id == 1) {
-					console.log('GUESS');
-					eventHandler.emitToRoom(room, response.eventName, {'history': toastGuess(templateParams)});
+				var eventParams = {};
+				switch (card.id) {
+					case (3):
+						eventParams.history = Toaster.baron(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.comparedCard);
+						break;
+					case (1):
+						eventParams.history = Toaster.guard(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.guessCard);
+						break;
+					default:
+						// TODO
+						break;
 				}
-				if (card.id == 3) {
-					console.log('BARON');
-					eventHandler.emitToRoom(room, response.eventName, {'history': toastBaron(templateParams)});
-				}
+				eventHandler.emitToRoom(room, response.eventName, eventParams);
 
 				if (somebodyLost) {
-					eventHandler.emitToRoom(room, 'game.playerLost', {'player': somebodyLost});
+					var emitParams = {
+						'player': somebodyLost.getPublicInfo()
+					};
+					eventHandler.emitToRoom(room, 'game.playerLost', emitParams);
 				}
 
 				if (LoveLetter.isGameEnded()) {
@@ -198,29 +207,4 @@ function _getGuessScreen(LoveLetter)
 		'cards': LoveLetter.getCards().list
 	};
 	return jade.renderFile('views/guess.jade', params);
-}
-
-function toastGuess(data)
-{
-	var params = {
-		'toastType': 'info',
-		'playerName': data.player.name,
-		'targetName': data.targetPlayer.name,
-		'cardName': data.response.card.name,
-		'guessedCardName': data.response.params.guessCard.name,
-	};
-	return jade.renderFile('views/toast/guess.jade', params);
-}
-
-function toastBaron(data)
-{
-	console.log(data);
-	var params = {
-		'toastType': 'info',
-		'playerName': data.player.name,
-		'targetName': data.targetPlayer.name,
-		'cardName': data.response.card.name,
-		'comparedCardName': data.response.params.comparedCard.name,
-	};
-	return jade.renderFile('views/toast/baron.jade', params);
 }
