@@ -115,7 +115,7 @@ function Player(id, name) {
 					eventName = 'game.fight.equal';
 				}
 
-				//publicParams.compareCard = this.getTheCard();
+				publicParams.comparedCard = this.getTheCard();
 				break;
 
 			case (2): // Priest

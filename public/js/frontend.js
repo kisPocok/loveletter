@@ -82,6 +82,7 @@ var GamePlay = new (function GamePlay()
 	 */
 	var createPlayerGameplay = function(name, cards)
 	{
+		var yourTurn = cards.length == 2 ? '(select card to play)' : '';
 		var i, card, cardsHtml = '';
 		for (i in cards) {
 			card = cards[i];
@@ -95,7 +96,7 @@ var GamePlay = new (function GamePlay()
 			'<div id="yourself">' +
 				'<h2 title="' + name + '">Cards in your hand:</h2>' +
 				'<div class="cards">' +
-					cardsHtml +
+					cardsHtml + yourTurn +
 				'</div>' +
 			'</div>';
 	};
@@ -118,18 +119,18 @@ socket.on('handshake', handshake);
 socket.on('room.playerJoined', renderQueue);
 socket.on('room.playerLeft', renderQueue);
 socket.on('player.draw', getUpdates('draw'));
-socket.on('player.loose', looseTheGame);
+socket.on('game.playerLoose', getUpdates('playerLoose'));
 socket.on('game.start', startTheGame);
 socket.on('game.attack', getUpdates('attack'));
 socket.on('game.update', update);
 socket.on('game.reset', gameReset);
-socket.on('game.playerLoose', getUpdates('playerLoose'));
 socket.on('game.end', gameEnded);
 socket.on('card.prompt', cardGuess);
 socket.on('card.target', cardTarget);
 socket.on('game.guess.success', toastGuess);
 socket.on('game.guess.failed', toastGuess);
-socket.on('game.fight.lost', toastFight);
+socket.on('game.fight.win', toastFight);
+socket.on('game.fight.loose', toastFight);
 
 function handshake(response) {
 	console.log('Handshake', response.userId);
@@ -182,11 +183,7 @@ function cardTarget(params) {
 function gameReset() {
 	GamePlay.reset();
 }
-function looseTheGame() {
-	console.warn('YOU LOST :(');
-}
 function gameEnded(params) {
-	console.log('gameEnded  ', params);
 	var isWinner = user.id == params.player.id;
 	var html = $(isWinner ? params.win : params.loose);
 	$('#history').append(html).children('a').alert();
@@ -194,12 +191,16 @@ function gameEnded(params) {
 }
 function toastFight(params)
 {
-	console.log('TODO', params);
+	renderHistory(params.history);
 }
 function toastGuess(params)
 {
-	console.log('toastGuess', params);
-	$('#history').append($(params.history)).children('a').alert();
+	renderHistory(params.history);
+}
+function renderHistory(html)
+{
+	var htmlObj = $(html);
+	$('#history').append(htmlObj).children('a').alert();
 }
 
 
@@ -212,12 +213,11 @@ var unimplementedEvents = [
 	'game.discard.win',
 	'game.discard',
 	'game.protect',
-	'game.fight.win',
-	'game.fight.loose',
 	'game.fight.equal',
 	'game.peek',
 	'game.nextPlayer',
 	'game.playerLost',
+	'player.loose',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
 	socket.on(eventName, function(response) {

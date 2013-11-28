@@ -115,7 +115,10 @@ exports.App = function(eventHandler, room)
 		activePlayerId = getNextActivePlayerId(activePlayerId);
 		var player = this.getActivePlayer();
 		Game.nextTurnForPlayer(player, this.getDeck());
-		eventHandler.emitToRoom(roomName, 'game.nextPlayer', player);
+		var params = {
+			'player': player.getPublicInfo()
+		};
+		eventHandler.emitToRoom(roomName, 'game.nextPlayer', params);
 		return player;
 	};
 

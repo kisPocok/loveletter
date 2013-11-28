@@ -107,14 +107,9 @@ function playCard(params)
 		socketHelper.emitToUser(user, 'card.target', params);
 
 	} else {
-		console.log('USER:', user.id);
-		console.log('TARGET:', params.target||user);
-
 		var player = LoveLetter.getPlayer(user);
 		var targetPlayer = LoveLetter.getPlayer(params.target||user);
 		var isPlayable = Game.isPlayableCard(card, player, targetPlayer, params.extraParams);
-
-		console.log('is card playable?', isPlayable ? 'Y' : 'N');
 
 		if (isPlayable) {
 			try {
@@ -129,10 +124,15 @@ function playCard(params)
 					'somebodyList': somebodyLost,
 					'targetPlayer': targetPlayer.getPublicInfo(),
 				};
-				var emitParams = {
-					'history': _toastGuess(templateParams)
-				};
-				eventHandler.emitToRoom(room, response.eventName, emitParams);
+
+				if (card.id == 1) {
+					console.log('GUESS');
+					eventHandler.emitToRoom(room, response.eventName, {'history': toastGuess(templateParams)});
+				}
+				if (card.id == 3) {
+					console.log('BARON');
+					eventHandler.emitToRoom(room, response.eventName, {'history': toastBaron(templateParams)});
+				}
 
 				if (somebodyLost) {
 					eventHandler.emitToRoom(room, 'game.playerLost', {'player': somebodyLost});
@@ -200,7 +200,7 @@ function _getGuessScreen(LoveLetter)
 	return jade.renderFile('views/guess.jade', params);
 }
 
-function _toastGuess(data)
+function toastGuess(data)
 {
 	var params = {
 		'toastType': 'info',
@@ -210,4 +210,17 @@ function _toastGuess(data)
 		'guessedCardName': data.response.params.guessCard.name,
 	};
 	return jade.renderFile('views/toast/guess.jade', params);
+}
+
+function toastBaron(data)
+{
+	console.log(data);
+	var params = {
+		'toastType': 'info',
+		'playerName': data.player.name,
+		'targetName': data.targetPlayer.name,
+		'cardName': data.response.card.name,
+		'comparedCardName': data.response.params.comparedCard.name,
+	};
+	return jade.renderFile('views/toast/baron.jade', params);
 }
