@@ -123,13 +123,20 @@ function playCard(params)
 				}
 				var response = player.attack(Game, card, targetPlayer, params);
 				var somebodyLost = Game.handleAttackingSituation(LoveLetter, player, targetPlayer, response.eventName);
-
-				var emitParams = {
+				var templateParams = {
 					'player': player.getPublicInfo(),
 					'response': response,
-					'targetPlayer': targetPlayer.getPublicInfo()
+					'somebodyList': somebodyLost,
+					'targetPlayer': targetPlayer.getPublicInfo(),
+				};
+				var emitParams = {
+					'history': _toastGuess(templateParams)
 				};
 				eventHandler.emitToRoom(room, response.eventName, emitParams);
+
+				if (somebodyLost) {
+					eventHandler.emitToRoom(room, 'game.playerLost', {'player': somebodyLost});
+				}
 
 				if (LoveLetter.isGameEnded()) {
 					console.log('GAME ENDED!');
@@ -156,7 +163,7 @@ function disconnect(socket)
 			var room = RoomManager.getRoom(user.room);
 			room.removeUser(user);
 			var emitParams = {
-				playerCount: room.getUserIdList().length
+				'playerCount': room.getUserIdList().length
 			};
 			socketHelper.emitToRoom(room, 'room.playerLeft', emitParams);
 			var LoveLetter = room.getGame();
@@ -191,4 +198,16 @@ function _getGuessScreen(LoveLetter)
 		'cards': LoveLetter.getCards().list
 	};
 	return jade.renderFile('views/guess.jade', params);
+}
+
+function _toastGuess(data)
+{
+	var params = {
+		'toastType': 'info',
+		'playerName': data.player.name,
+		'targetName': data.targetPlayer.name,
+		'cardName': data.response.card.name,
+		'guessedCardName': data.response.params.guessCard.name,
+	};
+	return jade.renderFile('views/toast/guess.jade', params);
 }

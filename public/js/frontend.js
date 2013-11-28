@@ -165,6 +165,7 @@ socket.on('card.prompt', cardGuess);
 socket.on('card.target', cardTarget);
 socket.on('game.guess.success', toastGuess);
 socket.on('game.guess.failed', toastGuess);
+socket.on('game.fight.lost', toastFight);
 
 function handshake(response) {
 	//console.log('Handshake', response.userId);
@@ -217,24 +218,19 @@ function looseTheGame() {
 	console.warn('YOU LOST :(');
 }
 function gameEnded(params) {
-	if (user.id == params.winnerPlayer.id) {
-		console.warn('YOU WON THE GAME :)');
-	}
+	console.log('gameEnded  ', params);
+	var isWinner = user.id == params.player.id;
+	var html = $(isWinner ? params.win : params.loose);
+	$('#history').append(html).children('a').alert();
+}
+function toastFight(params)
+{
+	console.log('TODO', params);
 }
 function toastGuess(params)
 {
-	var text = '<strong>' + params.player.name + '</strong> is playing <strong>' + params.response.card.name + '</strong>.' +
-		'The target is <strong>' + params.targetPlayer.name + '</strong>. ' +
-		'His or her guess is <strong>' + params.response.params.guessCard.name + '</strong>. ' +
-		'He is <strong>' + (params.response.response ? 'right' : 'wrong') + '</strong>.';
-	var html = _alertHtml(text);
-	$('#alert').html(html).children('a').alert();
-}
-function _alertHtml(content)
-{
-	return '<div class="alert alert-warning fade in">' +
-			'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' + content +
-		'</div>';
+	console.log('toastGuess', params);
+	$('#history').append($(params.history)).children('a').alert();
 }
 
 
@@ -252,6 +248,7 @@ var unimplementedEvents = [
 	'game.fight.equal',
 	'game.peek',
 	'game.nextPlayer',
+	'game.playerLost',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
 	socket.on(eventName, function(response) {

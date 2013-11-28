@@ -77,7 +77,7 @@ function Player(id, name) {
 	 */
 	this.attack = function(gameLogic, withCard, targetPlayer, params)
 	{
-		var cardResponse, eventName;
+		var cardResponse, eventName, publicParams = {};
 
 		this.removeCard(withCard);
 
@@ -114,6 +114,8 @@ function Player(id, name) {
 				} else {
 					eventName = 'game.fight.equal';
 				}
+
+				//publicParams.compareCard = this.getTheCard();
 				break;
 
 			case (2): // Priest
@@ -123,8 +125,8 @@ function Player(id, name) {
 
 			case (1): // Guard
 				cardResponse = gameLogic.guess(params.guess, targetPlayer ? targetPlayer.getTheCard() : null);
-				params.guessCard = Cards.getById(params.guess);
 				eventName = cardResponse ? 'game.guess.success' : 'game.guess.failed';
+				publicParams.guessCard = Cards.getById(params.guess);
 				break;
 
 			default:
@@ -132,7 +134,7 @@ function Player(id, name) {
 		}
 
 		return {
-			params: params,
+			params: publicParams,
 			card: withCard,
 			response: cardResponse,
 			eventName: eventName

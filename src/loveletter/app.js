@@ -1,3 +1,5 @@
+var jade = require('jade');
+
 /**
  * @param {SocketHelper} eventHandler
  * @param {Room|string} room
@@ -8,6 +10,7 @@ exports.App = function(eventHandler, room)
 	var Game   = require('./game').game;
 	var Cards  = require('./cards').cards;
 	var Player = require('./player').player;
+
 	//var Events = require('./events').events;
 
 	var roomName = room.name || room;
@@ -352,8 +355,13 @@ exports.App = function(eventHandler, room)
 		this.getDeck().renew();
 		gameStarted = false;
 
+		var templateParams = {
+			'playerName': winner.name
+		};
 		var params = {
-			'winnerPlayer': winner
+			'player': winner,
+			'win': jade.renderFile('views/toast/win.jade', templateParams),
+			'loose': jade.renderFile('views/toast/loose.jade', templateParams)
 		};
 		eventHandler.emitToRoom(roomName, 'game.end', params);
 	};
