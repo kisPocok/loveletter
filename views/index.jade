@@ -1,25 +1,23 @@
 extends layout
 
 block content
-  div(class="container")
-    div(class="row")
-      div(class="col-md-6")
+    .page-header
         h1= title
+    .lead
+        p.form-inline
+            input#room.form-control(type='text', value='test', name='room', placeholder='Name of the room')
+            button.btn.btn-default(id='enter') Enter
+            p#gamequeue
         p
-          input(type='text', value='test', name='room', id='room', placeholder='Name of the room')
-          button(id='enter') Enter
-          p(id='gamequeue')
-        p
-          button(id='start', style='display:none') Start the Game
-
-      div(class="col-md-6")
-        div(id='history')
-        div(id='gameplay')
-        div(id='target')
-        div(id='guess')
+            button.btn.btn-default(type='button', id='start', style='display:none') Start the Game
 
 
-  script(src='/socket.io/socket.io.js')
-  script(src='http://code.jquery.com/jquery-2.0.3.min.js')
-  script(src='/js/frontend.js')
-  script(src='/js/bootstrap.min.js')
+        #history
+        #gameplay
+        #target
+        #guess
+
+    script(src='/socket.io/socket.io.js')
+    script(src='http://code.jquery.com/jquery-2.0.3.min.js')
+    script(src='/js/frontend.js')
+    script(src='/js/bootstrap.min.js')

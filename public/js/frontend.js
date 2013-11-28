@@ -28,18 +28,6 @@ var GamePlay = new (function GamePlay()
 	};
 
 	/**
-	 * @returns {int}
-	 */
-	this.prompt = function()
-	{
-		var guess;
-		if (guess = prompt('Melyik kártyát választod? (2-től 8-ig írj egy számot!)')) {
-			return parseInt(guess);
-		}
-		return 0;
-	};
-
-	/**
 	 * @param {int} playersCount
 	 */
 	this.renderGameQueue = function(playersCount)
@@ -100,33 +88,16 @@ var GamePlay = new (function GamePlay()
 			cardsHtml += '<a href="#" ' +
 				' class="btn btn-lg btn-primary card card' + card.id + '" ' +
 				' data-cardid="' + card.id + '"' +
-				//' data-toggle="popover"' +
-				//' role="button"' +
-				//' data-original-title="Select your target"' +
-				//' data-content="Player 1 || Player 2"' +
 				'>' + card.name + ' (' + card.id + ')' +
 				'</a> ';
 		}
 		return '<!-- player\'s spot -->' +
 			'<div id="yourself">' +
-				'<h2>Te: ' + name + ' </h2>' +
+				'<h2 title="' + name + '">Cards in your hand:</h2>' +
 				'<div class="cards">' +
 					cardsHtml +
 				'</div>' +
 			'</div>';
-	};
-
-	var createTargetSelector = function(yourselfIsEnabled, protectedPlayers)
-	{
-		var html = '<div class="popover bottom">' +
-			'<div class="arrow"></div>' +
-			'<h3 class="popover-title">Select target player</h3>' +
-			'<div class="popover-content">' +
-				'<p><img src="#" alt="Yourself" class="img-circle"></p>' +
-			'</div>' +
-		'</div>';
-
-		return html;
 	};
 
 	/**
@@ -136,16 +107,9 @@ var GamePlay = new (function GamePlay()
 	 */
 	var createOpponentGameplay = function(name, cardCount)
 	{
-		var cardsHtml = '';
-		for (var i=0; i<cardCount; i++) {
-			cardsHtml += '<div class="card unknown">?</div>';
-		}
 		return '<!-- opponent\'s spot -->' +
 			'<div class="opponent">' +
-				'<h2>Opponent: ' + name + ' </h2>' +
-				'<div class="cards">' +
-					cardsHtml +
-				'</div>' +
+				'<h2 title="' + name + '">Your opponent have ' + cardCount + ' card(s) in his hand.</h2>' +
 			'</div>';
 	};
 });
