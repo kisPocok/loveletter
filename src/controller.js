@@ -2,6 +2,7 @@ var SocketHelper = require('./socketHelper').SocketHelper;
 var RoomManager = require('./roomManager').RoomManager();
 var UserManager = require('./UserManager').UserManager();
 var Toaster = require('./toast').Toast();
+var Screen = require('./screen').Screen();
 var User = require('./user').User;
 var jade = require('jade');
 
@@ -99,12 +100,12 @@ function playCard(params)
 
 	var card = LoveLetter.getCards().getById(params.cardId);
 	if (Game.isCardNeedPrompt(card) && !params.guess) {
-		params.html = _getGuessScreen(LoveLetter);
+		params.html = Screen.guess(LoveLetter);
 		socketHelper.emitToUser(user, 'card.prompt', params);
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
 		var targets = Game.getTargetablePlayers(card, LoveLetter);
-		params.html = _getPlayerSelectorScreen(targets);
+		params.html = Screen.playerSelector(targets);
 		socketHelper.emitToUser(user, 'card.target', params);
 
 	} else {
@@ -119,33 +120,7 @@ function playCard(params)
 				}
 				var response = player.attack(Game, card, targetPlayer, params);
 				var somebodyLost = Game.handleAttackingSituation(LoveLetter, player, targetPlayer, response.eventName);
-				var templateParams = {
-					'player': player.getPublicInfo(),
-					'response': response,
-					'somebodyList': somebodyLost,
-					'targetPlayer': targetPlayer.getPublicInfo(),
-				};
-
-				var eventParams = {};
-				switch (card.id) {
-					case (3):
-						eventParams.history = Toaster.baron(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.comparedCard);
-						break;
-					case (1):
-						eventParams.history = Toaster.guard(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.guessCard);
-						break;
-					default:
-						// TODO
-						break;
-				}
-				eventHandler.emitToRoom(room, response.eventName, eventParams);
-
-				if (somebodyLost) {
-					var emitParams = {
-						'player': somebodyLost.getPublicInfo()
-					};
-					eventHandler.emitToRoom(room, 'game.playerLost', emitParams);
-				}
+				toastEvent(room, player, targetPlayer, card, response);
 
 				if (LoveLetter.isGameEnded()) {
 					console.log('GAME ENDED!');
@@ -184,27 +159,25 @@ function disconnect(socket)
 }
 
 /**
- * @param {Array} targetablePlayers
- * @returns {String}
- * @private
+ * @param {Room} room
+ * @param {Player} player
+ * @param {Player} targetPlayer
+ * @param {Card} card
+ * @param {Object} response
  */
-function _getPlayerSelectorScreen(targetablePlayers)
+function toastEvent(room, player, targetPlayer, card, response)
 {
-	var params = {
-		'players': targetablePlayers
-	};
-	return jade.renderFile('views/userSelect.jade', params);
-}
-
-/**
- * @param LoveLetter
- * @returns {String}
- * @private
- */
-function _getGuessScreen(LoveLetter)
-{
-	var params = {
-		'cards': LoveLetter.getCards().list
-	};
-	return jade.renderFile('views/guess.jade', params);
+	var eventParams = {};
+	switch (card.id) {
+		case (3):
+			eventParams.history = Toaster.baron(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.comparedCard);
+			break;
+		case (1):
+			eventParams.history = Toaster.guard(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.guessCard);
+			break;
+		default:
+			// TODO
+			break;
+	}
+	socketHelper.emitToRoom(room, response.eventName, eventParams);
 }
