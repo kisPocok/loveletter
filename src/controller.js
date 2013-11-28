@@ -95,6 +95,7 @@ function playCard(params)
 	if (LoveLetter.getActivePlayer().id != user.id) {
 		// TODO error handling
 		console.error('Nem Te vagy az aktív játékos!');
+		socketHelper.emitToUser(user, 'player.notActivePlayer');
 		return;
 	}
 

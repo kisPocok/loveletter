@@ -223,6 +223,7 @@ var unimplementedEvents = [
 	'game.peek',
 	'game.nextPlayer',
 	'game.playerLost',
+	'player.notActivePlayer',
 	'player.loose',
 ];
 $(unimplementedEvents).each(function(i, eventName) {
