@@ -35,4 +35,4 @@ app.get('/', routes.index);
  * - Aye-Aye, Captain. Course laid in.
  * - Maximum warp. Punch it.
  */
-io.sockets.on('connection', require('./src/game').initGame);
+io.sockets.on('connection', require('./src/controller').initApplication);

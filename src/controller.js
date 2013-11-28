@@ -10,7 +10,7 @@ var socketHelper, user, devMode = (process.env.DEV == 1);
  * @type {function}
  * @param {socket} socket
  */
-exports.initGame = function(socket)
+exports.initApplication = function(socket)
 {
 	socketHelper = new SocketHelper(socket);
 	user = new User(socket.id);
