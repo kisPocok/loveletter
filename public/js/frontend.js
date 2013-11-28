@@ -73,7 +73,7 @@ var GamePlay = new (function GamePlay()
 	this.reset = function()
 	{
 		gamePlay.html('');
-	}
+	};
 
 	/**
 	 * @param {string} name
@@ -86,7 +86,7 @@ var GamePlay = new (function GamePlay()
 		for (i in cards) {
 			card = cards[i];
 			cardsHtml += '<a href="#" ' +
-				' class="btn btn-lg btn-primary card card' + card.id + '" ' +
+				' class="btn btn-lg btn-large btn-primary card card' + card.id + '" ' +
 				' data-cardid="' + card.id + '"' +
 				'>' + card.name + ' (' + card.id + ')' +
 				'</a> ';
