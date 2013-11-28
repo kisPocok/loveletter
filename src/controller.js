@@ -21,59 +21,42 @@ exports.initApplication = function(socket)
 	var emitParams = {
 		userId: user.id
 	};
-	socketHelper.emitToCurrentUser('handshake', emitParams);
-	socketHelper.joinRoomCurrentUser('queue');
+
+	/**
+	 * TODO part I.
+	 * - handshake az aktuális játékossal, küldjük ki neki egyedi userId-t!
+	 * - léptessük be a játékost a 'queue' szobába, a várakozók közé
+	 */
 
 	socket.on('room.join', joinRoom);
 	socket.on('game.start', startTheGame);
 	socket.on('game.getUpdates', getUpdates);
 	socket.on('game.playCard', playCard);
-	socket.on('disconnect', disconnect(socket));
+
+	// TODO part IV. disconnect megvalósítása
 };
 
-function joinRoom(params) {
-	var user = UserManager.getUser(params.user.id); // TODO kipróbálni, ha kiveszem ugyanígy megy-e
-	var room = RoomManager.createRoom(params.room);
-	var isEntered = room.addUser(user);
-	if (!isEntered) {
-		return;
-	}
-	user.updateWithRoom(room);
-	var emitParams = {
-		playerCount: room.getUserIdList().length
-	};
-	socketHelper.changeRoomCurrentUser('queue', params.room);
-	socketHelper.emitToRoom(params.room, 'room.playerJoined', emitParams);
+function joinRoom(params)
+{
+	/**
+	 * TODO part I.
+	 * - a játékos be van-e lépve már a szobába?
+	 *   - ha igen, ne fusson tovább a kód
+	 * - felhasználónál rögzíteni a szobát
+	 * - játékost beléptetni a szobába
+	 * - értesíteni a szobát, hogy egy játékos belépett + frissíteni kell a queue számlálót
+	 */
 }
 
 function startTheGame(params)
 {
-	if (!user.room) {
-		return;
-	}
-	var room = RoomManager.getRoom(user.room);
-	var userList = room.getUserIdList();
-
-	var LoveLetterApp = require('./loveletter/app').App;
-	var LoveLetter = new LoveLetterApp(socketHelper, room);
-	if (LoveLetter.isGameAlreadyStarted()) {
-		socketHelper.emitToCurrentUser('game.alreadyStarted');
-		return;
-	}
-	LoveLetter.createGame(userList);
-	if (devMode) {
-		// For science!
-		var cards = LoveLetter.getCards().list;
-		LoveLetter.startDevGame(
-			cards.guard,
-			cards.baron,
-			cards.handmaid
-		);
-	} else {
-		// Normal start
-		LoveLetter.startGame();
-	}
-	room.setGame(LoveLetter);
+	/**
+	 * TODO part I.
+	 * - van-e aktív játék?
+	 *   - ha van szólni a jatekosnak, hogy gebasz van!
+	 * - új játék létrehozása. Legyen egy DEV és egy PROD verzió is!
+	 * - szobába a játék logikáját rögzítsétek
+	 */
 }
 
 function getUpdates(params)
@@ -92,22 +75,24 @@ function playCard(params)
 	var LoveLetter = room.getGame();
 	var Game = LoveLetter.getGame();
 
-	if (LoveLetter.getActivePlayer().id != user.id) {
-		// TODO error handling
-		console.error('Nem Te vagy az aktív játékos!');
-		socketHelper.emitToUser(user, 'player.notActivePlayer');
-		return;
-	}
+	/**
+	 * TODO part III.
+	 * Minden jatekos lapkijatszasa beesik, nem csak a soron kovetkezoe.
+	 * - ertesitsuk a jatekost, ha nem ő az aktív játékos!
+	 */
 
 	var card = LoveLetter.getCards().getById(params.cardId);
 	if (Game.isCardNeedPrompt(card) && !params.guess) {
-		params.html = Screen.guess(LoveLetter);
-		socketHelper.emitToUser(user, 'card.prompt', params);
+		/**
+		 * TODO part III.
+		 * - küldj ki egy 'guess' screent!
+		 */
 
 	} else if(Game.isCardNeedTarget(card, LoveLetter) && !params.target) {
-		var targets = Game.getTargetablePlayers(card, LoveLetter);
-		params.html = Screen.playerSelector(targets);
-		socketHelper.emitToUser(user, 'card.target', params);
+		/**
+		 * TODO part III.
+		 * - küldj ki egy 'playerSelector' screent!
+		 */
 
 	} else {
 		var player = LoveLetter.getPlayer(user);
@@ -123,12 +108,13 @@ function playCard(params)
 				var somebodyLost = Game.handleAttackingSituation(LoveLetter, player, targetPlayer, response.eventName);
 				toastEvent(room, player, targetPlayer, card, response);
 
-				if (LoveLetter.isGameEnded()) {
-					console.log('GAME ENDED!');
-					LoveLetter.endGame();
-				} else {
-					LoveLetter.nextPlayer();
-				}
+				/**
+				 * TODO part III.
+				 * Ellenőrízni kell, hogy a játék véget ért-e.
+				 * - Ha igen, értesíteni minden játékost róla
+				 * - Ha nem, jöhet következő játékos
+				 */
+
 			} catch(er) {
 				console.log('Hiba történt a lap kijátszása közben:', er);
 			}
@@ -139,24 +125,16 @@ function playCard(params)
 	}
 }
 
-function disconnect(socket)
+function disconnect()
 {
-	return function()
-	{
-		var user = UserManager.getUser(socket.id);
-		if (user.room) {
-			var room = RoomManager.getRoom(user.room);
-			room.removeUser(user);
-			var emitParams = {
-				'playerCount': room.getUserIdList().length
-			};
-			socketHelper.emitToRoom(room, 'room.playerLeft', emitParams);
-			var LoveLetter = room.getGame();
-			if (LoveLetter && LoveLetter.isGameAlreadyStarted()) {
-				LoveLetter.reset();
-			}
-		}
-	};
+	/**
+	 * TODO part IV.
+	 * - ha a felhasználónak van szobája
+	 *   - vegyük ki a szobából
+	 *   - szóljunk a többi játékosnak a szobában, hogy létszám változás történt
+	 *   - ha van aktív játék a szobában
+	 *     - reseteljük le
+	 */
 }
 
 /**
@@ -169,6 +147,10 @@ function disconnect(socket)
 function toastEvent(room, player, targetPlayer, card, response)
 {
 	var eventParams = {};
+	/**
+	 * TODO part III.
+	 * Nincs minden kártya visszajelzése implementálva még. Válassz ki egyet és fejleszd le.
+	 */
 	switch (card.id) {
 		case (3):
 			eventParams.history = Toaster.baron(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.comparedCard);

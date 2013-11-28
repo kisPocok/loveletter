@@ -13,42 +13,25 @@ describe("Room Manager", function()
 
 	it("create a single room", function()
 	{
-		var room = roomManager.createRoom(roomName);
-		expect(roomManager.isAvailableRoom(roomName)).toBeTruthy;
-		expect(room.name).toBe(roomName);
-		expect(room).toBe(roomManager.getRoom(roomName));
-		expect(roomManager.getRoomList().length).toBe(1);
-		expect(roomManager.getRoomList()).toEqual([roomName]);
+		// TODO part II.
+		// expect: szobák száma, szoba neve, roomManager eléri-e
 	});
 
 	it("create two rooms", function()
 	{
-		var room = roomManager.createRoom(roomName);
-		var room2 = roomManager.createRoom(anotherRoomName);
-
-		expect(roomManager.isAvailableRoom(roomName)).toBeTruthy();
-		expect(roomManager.isAvailableRoom(anotherRoomName)).toBeTruthy();
-
-		expect(roomManager.getRoom(roomName)).toBe(room);
-		expect(roomManager.getRoom(anotherRoomName)).toBe(room2);
-
-		expect(roomManager.getRoomList().length).toBe(2);
-		expect(roomManager.getRoomList()).toEqual([roomName, anotherRoomName]);
+		// TODO part II.
+		// expect: szobák száma, szobák neve, elérhetőek-e?
 	});
 
 	it("create a single room, then create it again without force param", function()
 	{
-		var room = roomManager.createRoom(roomName);
-		room.addUser(user);
-		var room2 = roomManager.createRoom(roomName);
-		expect(room2.isUserInRoom(user)).toBeTruthy();
+		// TODO part II.
+		// tégy be egy user-t a szobába, nézd meg benne van-e
 	});
 
 	it("create a single room, then force to re-create it", function()
 	{
-		var room = roomManager.createRoom(roomName);
-		room.addUser(user);
-		var room2 = roomManager.createRoom(roomName, true);
-		expect(room2.isUserInRoom(user)).toBeFalsy();
+		// TODO part II.
+		// tégy be egy user-t a szobába, hozd létre "forszolva ugyanazt a szobát, nézd meg benne van-e
 	});
 });

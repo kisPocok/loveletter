@@ -13,8 +13,8 @@ exports.Toast = function()
 	{
 		var params = {
 			'toastType': 'info',
-			'playerName': player.name,
-			'targetName': targetPlayer.name,
+			'playerName': player.getPublicInfo().name,
+			'targetName': targetPlayer.getPublicInfo().name,
 			'cardName': card.name,
 			'guessedCardName': guessCard.name
 		};

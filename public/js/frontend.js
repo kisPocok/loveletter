@@ -17,10 +17,13 @@ var Game = new (function LoveLetter()
 	 */
 	self.handshake = function(response)
 	{
-		user.id = response.userId;
-		// TODO FIXME autoconnect to room
-		console.log('Handshake', response.userId);
-		$('#enter').click();
+		/**
+		 * TODO part I.
+		 * - a visszakapott userId-t, mentsd el értelemszerűen
+		 * - konzolra írjuk ki az értékét, későbbi debug céljából
+		 */
+
+		//$('#enter').click();
 	};
 
 	self.startTheGame = function()
@@ -39,9 +42,13 @@ var Game = new (function LoveLetter()
 	 */
 	self.endTheGame = function(params)
 	{
-		var isWinner = user.id == params.player.id;
-		var html = $(isWinner ? params.win : params.loose);
-		$('#history').append(html).children('a').alert();
+		/**
+		 * TODO part III.
+		 * - állapítsd meg, hogy az aktuális player nyert-e vagy vesztett.
+		 * - a megfelelő template-t #history -ba szúrd be
+		 * - használd az anchor element a bootstrap .alert(); funkciojat
+		 */
+
 		$('#gamestart').show();
 	}
 
