@@ -1,58 +1,134 @@
 
 var user = {};
-var lastState = null;
 var socket = io.connect('http://127.0.0.1:3000');
-
-var GamePlay = new (function GamePlay()
+var Game = new (function LoveLetter()
 {
 	this.currentPlayer = null;
-	this.activePlayerName = null;
 	this.players = [];
 	this.opponents = [];
 	this.deckCount = 0;
+	this.lastState = 0;
 
+	var self = this;
 	var gamePlay = $("#gameplay");
 
 	/**
-	 * @param {object} data
+	 * @param {object} response
 	 */
-	this.update = function(data)
+	self.handshake = function(response)
 	{
-		this.currentPlayer = data.yourself;
-		this.activePlayerName = data.activePlayer;
-		this.players = data.players;
-		this.opponents = data.players.filter(function(player) {
-			return player.name !== data.yourself.name;
-		});
-		this.deckCount = data.deckCount;
+		user.id = response.userId;
+		// TODO FIXME autoconnect to room
+		console.log('Handshake', response.userId);
+		$('#enter').click();
+	};
+
+	self.startTheGame = function()
+	{
+		$('#gamestart').hide();
+		getUpdates('start')();
+	};
+
+	self.reset = function()
+	{
+		gamePlay.html('');
 	};
 
 	/**
-	 * @param {int} playersCount
+	 * @param params
 	 */
-	this.renderGameQueue = function(playersCount)
+	self.endTheGame = function(params)
+	{
+		var isWinner = user.id == params.player.id;
+		var html = $(isWinner ? params.win : params.loose);
+		$('#history').append(html).children('a').alert();
+		$('#gamestart').show();
+	}
+
+	/**
+	 * @param {object} response
+	 */
+	self.update = function(response)
+	{
+		if (JSON.stringify(response) == JSON.stringify(self.lastState)) {
+			return;
+		}
+		self.lastState = response;
+		self.currentPlayer = response.yourself;
+		self.players = response.players;
+		self.opponents = response.players.filter(function(player) {
+			return player.name !== response.yourself.name;
+		});
+		self.deckCount = response.deckCount;
+
+		renderGamePlay();
+	};
+
+	/**
+	 * @param {object} response
+	 */
+	self.renderGameQueue = function(response)
 	{
 		var gameQueue = $("#gamequeue"),
 			startButton = $('#start');
 
-		if (playersCount > 1) {
+		if (response.playerCount > 1) {
 			startButton.show();
 		} else {
 			startButton.hide();
 		}
 
-		gameQueue.text(playersCount + ' player(s) in the queue.');
+		gameQueue.text(response.playerCount + ' player(s) in the queue.');
 	};
 
-	this.renderGamePlay = function()
+	/**
+	 * @param params
+	 */
+	self.renderHistory = function(params)
+	{
+		var htmlObj = $(params.history);
+		$('#history').append(htmlObj).children('a').alert();
+	};
+
+	/**
+	 * @param params
+	 */
+	self.cardGuess = function(params) {
+		var container = $('#guess');
+		container.html(params.html);
+		container.find('.btn').click(function(event) {
+			params.guess = $(event.target).data('cardid');
+			delete params.html;
+			socket.emit('game.playCard', params);
+			container.children('div').modal('hide');
+		});
+		container.children('div').modal('show');
+	};
+
+	/**
+	 * @param params
+	 */
+	self.cardTarget = function(params) {
+		var container = $('#target');
+		container.html(params.html);
+		container.find('.btn').click(function(event) {
+			params.target = $(event.target).data('userid');
+			delete params.html;
+			socket.emit('game.playCard', params);
+			container.children('div').modal('hide');
+		});
+		container.children('div').modal('show');
+	};
+
+	var renderGamePlay = function()
 	{
 		var currentPlayerHtml = createPlayerGameplay(
-			this.currentPlayer.name, this.currentPlayer.cardsInHand
+			self.currentPlayer.name, self.currentPlayer.cardsInHand
 		);
 
 		var i, opponentsHtml = '<div id="opponents">';
-		for (i in this.opponents) {
-			var opp = this.opponents[i];
+		for (i in self.opponents) {
+			var opp = self.opponents[i];
 			opponentsHtml += createOpponentGameplay(opp.name, opp.cardCount);
 		}
 		opponentsHtml += '</div>';
@@ -68,11 +144,6 @@ var GamePlay = new (function GamePlay()
 			};
 			socket.emit('game.playCard', params);
 		});
-	};
-
-	this.reset = function()
-	{
-		gamePlay.html('');
 	};
 
 	/**
@@ -113,98 +184,33 @@ var GamePlay = new (function GamePlay()
 				'<h2 title="' + name + '">Your opponent have ' + cardCount + ' card(s) in his hand.</h2>' +
 			'</div>';
 	};
+
+	return self;
 });
 
-socket.on('handshake', handshake);
-socket.on('room.playerJoined', renderQueue);
-socket.on('room.playerLeft', renderQueue);
+socket.on('handshake', Game.handshake);
+socket.on('room.playerJoined', Game.renderGameQueue);
+socket.on('room.playerLeft', Game.renderGameQueue);
 socket.on('player.draw', getUpdates('draw'));
 socket.on('game.playerLoose', getUpdates('playerLoose'));
-socket.on('game.start', startTheGame);
+socket.on('game.start', Game.startTheGame);
 socket.on('game.attack', getUpdates('attack'));
-socket.on('game.update', update);
-socket.on('game.reset', gameReset);
-socket.on('game.end', gameEnded);
-socket.on('card.prompt', cardGuess);
-socket.on('card.target', cardTarget);
-socket.on('game.guess.success', toastGuess);
-socket.on('game.guess.failed', toastGuess);
-socket.on('game.fight.win', toastFight);
-socket.on('game.fight.loose', toastFight);
+socket.on('game.update', Game.update);
+socket.on('game.reset', Game.reset);
+socket.on('game.end', Game.endTheGame);
+socket.on('game.guess.success', Game.renderHistory);
+socket.on('game.guess.failed', Game.renderHistory);
+socket.on('game.fight.win', Game.renderHistory);
+socket.on('game.fight.loose', Game.renderHistory);
+socket.on('card.prompt', Game.cardGuess);
+socket.on('card.target', Game.cardTarget);
 
-function handshake(response) {
-	console.log('Handshake', response.userId);
-	user.id = response.userId;
-	$('#enter').click(); // TODO autoconnect to room
-}
-function renderQueue(response) {
-	GamePlay.renderGameQueue(response.playerCount);
-}
-function startTheGame() {
-	$('#gamestart').hide();
-	getUpdates('start')();
-}
 function getUpdates(plan) {
 	return function() {
 		console.log('Update because', plan);
 		socket.emit('game.getUpdates', {userId: user.id});
 	}
 }
-function update(response) {
-	if (JSON.stringify(response) == JSON.stringify(lastState)) {
-		return;
-	}
-	lastState = response;
-	GamePlay.update(response);
-	GamePlay.renderGamePlay();
-}
-function cardGuess(params) {
-	var container = $('#guess');
-	container.html(params.html);
-	container.find('.btn').click(function(event) {
-		params.guess = $(event.target).data('cardid');
-		delete params.html;
-		socket.emit('game.playCard', params);
-		container.children('div').modal('hide');
-	});
-	container.children('div').modal('show');
-}
-function cardTarget(params) {
-	var container = $('#target');
-	container.html(params.html);
-	container.find('.btn').click(function(event) {
-		params.target = $(event.target).data('userid');
-		delete params.html;
-		socket.emit('game.playCard', params);
-		container.children('div').modal('hide');
-	});
-	container.children('div').modal('show');
-}
-function gameReset() {
-	GamePlay.reset();
-}
-function gameEnded(params) {
-	var isWinner = user.id == params.player.id;
-	var html = $(isWinner ? params.win : params.loose);
-	$('#history').append(html).children('a').alert();
-	$('#gamestart').show();
-}
-function toastFight(params)
-{
-	renderHistory(params.history);
-}
-function toastGuess(params)
-{
-	renderHistory(params.history);
-}
-function renderHistory(html)
-{
-	var htmlObj = $(html);
-	$('#history').append(htmlObj).children('a').alert();
-}
-
-
-
 
 // TODO
 var unimplementedEvents = [
