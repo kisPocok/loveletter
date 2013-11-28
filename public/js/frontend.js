@@ -119,7 +119,7 @@ socket.on('room.playerJoined', renderQueue);
 socket.on('room.playerLeft', renderQueue);
 socket.on('player.draw', getUpdates('draw'));
 socket.on('player.loose', looseTheGame);
-socket.on('game.start', getUpdates('start'));
+socket.on('game.start', startTheGame);
 socket.on('game.attack', getUpdates('attack'));
 socket.on('game.update', update);
 socket.on('game.reset', gameReset);
@@ -132,12 +132,16 @@ socket.on('game.guess.failed', toastGuess);
 socket.on('game.fight.lost', toastFight);
 
 function handshake(response) {
-	//console.log('Handshake', response.userId);
+	console.log('Handshake', response.userId);
 	user.id = response.userId;
 	$('#enter').click(); // TODO autoconnect to room
 }
 function renderQueue(response) {
 	GamePlay.renderGameQueue(response.playerCount);
+}
+function startTheGame() {
+	$('#gamestart').hide();
+	getUpdates('start')();
 }
 function getUpdates(plan) {
 	return function() {
@@ -186,6 +190,7 @@ function gameEnded(params) {
 	var isWinner = user.id == params.player.id;
 	var html = $(isWinner ? params.win : params.loose);
 	$('#history').append(html).children('a').alert();
+	$('#gamestart').show();
 }
 function toastFight(params)
 {
@@ -200,7 +205,7 @@ function toastGuess(params)
 
 
 
-
+// TODO
 var unimplementedEvents = [
 	'game.playCountress',
 	'game.trade',
