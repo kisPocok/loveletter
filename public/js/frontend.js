@@ -19,7 +19,6 @@ var Game = new (function LoveLetter()
 	{
 		user.id = response.userId;
 		// TODO FIXME autoconnect to room
-		console.log('Handshake', response.userId);
 		$('#enter').click();
 	};
 
@@ -142,6 +141,7 @@ var Game = new (function LoveLetter()
 				userId: user.id,
 				targetPlayerId: null // TODO
 			};
+			console.log('cardTarget', params, user.id);
 			socket.emit('game.playCard', params);
 		});
 	};
@@ -200,6 +200,7 @@ socket.on('game.reset', Game.reset);
 socket.on('game.end', Game.endTheGame);
 socket.on('game.guess.success', Game.renderHistory);
 socket.on('game.guess.failed', Game.renderHistory);
+socket.on('game.peek', function() { console.log('PEEEK'); Game.renderHistory(); });
 socket.on('game.fight.win', Game.renderHistory);
 socket.on('game.fight.loose', Game.renderHistory);
 socket.on('card.prompt', Game.cardGuess);
@@ -220,7 +221,6 @@ var unimplementedEvents = [
 	'game.discard',
 	'game.protect',
 	'game.fight.equal',
-	'game.peek',
 	'game.nextPlayer',
 	'game.playerLost',
 	'player.notActivePlayer',

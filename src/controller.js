@@ -14,6 +14,7 @@ var socketHelper, user, devMode = (process.env.DEV == 1);
  */
 exports.initApplication = function(socket)
 {
+	console.log('SOCKET', socket.id);
 	socketHelper = new SocketHelper(socket);
 	user = new User(socket.id);
 	UserManager.addUser(user);
@@ -66,7 +67,7 @@ function startTheGame(params)
 		var cards = LoveLetter.getCards().list;
 		LoveLetter.startDevGame(
 			cards.guard,
-			cards.baron,
+			cards.priest,
 			cards.handmaid
 		);
 	} else {
@@ -91,6 +92,8 @@ function playCard(params)
 	var room = RoomManager.getRoom(user.room);
 	var LoveLetter = room.getGame();
 	var Game = LoveLetter.getGame();
+
+	console.log('playCard', params);
 
 	if (LoveLetter.getActivePlayer().id != user.id) {
 		// TODO error handling
@@ -168,17 +171,27 @@ function disconnect(socket)
  */
 function toastEvent(room, player, targetPlayer, card, response)
 {
+	var playerPublicInfo = player.getPublicInfo();
+	var targetPublicInfo = targetPlayer.getPublicInfo();
 	var eventParams = {};
 	switch (card.id) {
 		case (3):
-			eventParams.history = Toaster.baron(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.comparedCard);
+			eventParams.history = Toaster.baron(playerPublicInfo, targetPublicInfo, card, response.params.comparedCard);
+			socketHelper.emitToRoom(room, response.eventName, eventParams);
+			break;
+		case (2):
+			eventParams.history = Toaster.priest(playerPublicInfo, targetPublicInfo, card);
+			socketHelper.emitToRoomExceptCurrent(room, response.eventName, eventParams);
+
+			eventParams.history = Toaster.priestYourself(playerPublicInfo, targetPublicInfo, card, response.params.oppenentHand);
+			socketHelper.emitToUser(player.id, response.eventName, eventParams);
 			break;
 		case (1):
-			eventParams.history = Toaster.guard(player.getPublicInfo(), targetPlayer.getPublicInfo(), card, response.params.guessCard);
+			eventParams.history = Toaster.guard(playerPublicInfo, targetPublicInfo, card, response.params.guessCard);
+			socketHelper.emitToRoom(room, response.eventName, eventParams);
 			break;
 		default:
 			// TODO
 			break;
 	}
-	socketHelper.emitToRoom(room, response.eventName, eventParams);
 }

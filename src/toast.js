@@ -25,6 +25,43 @@ exports.Toast = function()
 	 * @param {Player} player
 	 * @param {Player} targetPlayer
 	 * @param {Card} card
+	 * @returns {String}
+	 */
+	this.priest = function(player, targetPlayer, card)
+	{
+		var params = {
+			'toastType': 'info',
+			'playerName': player.name,
+			'targetName': targetPlayer.name,
+			'cardName': card.name
+		};
+		console.log(params);
+		return jade.renderFile('views/toast/priest.jade', params);
+	};
+
+	/**
+	 * @param {Player} player
+	 * @param {Player} targetPlayer
+	 * @param {Card} card
+	 * @param {Card} opponentCard
+	 * @returns {String}
+	 */
+	this.priestYourself = function(player, targetPlayer, card, opponentCard)
+	{
+		var params = {
+			'toastType': 'info',
+			'playerName': player.name,
+			'targetName': targetPlayer.name,
+			'cardName': card.name,
+			'opponentCardName': opponentCard.name
+		};
+		return jade.renderFile('views/toast/priestYourself.jade', params);
+	};
+
+	/**
+	 * @param {Player} player
+	 * @param {Player} targetPlayer
+	 * @param {Card} card
 	 * @param {Card} comparedCard
 	 * @returns {String}
 	 */

@@ -35,8 +35,11 @@ exports.SocketHelper = function(socketConnection)
 	 */
 	this.emitToRoomExceptCurrent = function(room, eventName, eventParams)
 	{
+
+		console.log('SOCKET ROOM', this.socketConnection.id);
 		var roomName = room.name || room;
 		var params = eventParams || null;
+		console.log('emitToRoomExceptCurrent', room, eventName, params);
 		this.socketConnection.broadcast.to(roomName).emit(eventName, params);
 	};
 

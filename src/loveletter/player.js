@@ -121,6 +121,7 @@ function Player(id, name) {
 			case (2): // Priest
 				cardResponse = gameLogic.peek(targetPlayer);
 				eventName = 'game.peek';
+				publicParams.oppenentHand = targetPlayer.getTheCard();
 				break;
 
 			case (1): // Guard
