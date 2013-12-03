@@ -1,7 +1,9 @@
 Love Letter Card Game
 ================================
 
-###Installation on MAC OSX
+[![Build Status](https://travis-ci.org/kisPocok/loveletter.png?branch=master)](https://travis-ci.org/kisPocok/loveletter)
+
+###Installation on UNIX systems
 
 #### Install node.js
 
