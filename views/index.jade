@@ -5,13 +5,14 @@ block content
         h1= title
     .lead
         #gamestart
-            p.form-inline
+            p.form-inline.input-group
+                span.input-group-addon
+                    |Room:
                 input#room.form-control(type='text', value='test', name='room', placeholder='Name of the room')
                 button.btn.btn-default(id='enter') Enter
                 p#gamequeue
             p
                 button.btn.btn-default(type='button', id='start', style='display:none') Start the Game
-
 
         #history
         #gameplay
