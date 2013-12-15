@@ -13,6 +13,7 @@
 	"scripts" : {
 		"start": "DEV=1 nodemon server.js",
 		"startprod": "node server.js",
-                "test": "./run_tests.sh"
+		"test": "./run_tests.sh",
+		"testwin": "./run_tests.bat"
 	}
 }
